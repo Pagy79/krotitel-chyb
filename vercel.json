@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --prefix krotitel-chyb",
+  "buildCommand": "npm run build --prefix krotitel-chyb",
+  "outputDirectory": "krotitel-chyb/out"
+}

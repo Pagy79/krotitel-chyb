@@ -16,7 +16,8 @@ Otevři [http://localhost:3000](http://localhost:3000).
 
 1. Pushni repo na GitHub.
 2. Na [vercel.com/new](https://vercel.com/new) importuj projekt.
-3. **Root Directory** nastav na `krotitel-chyb`.
+3. **Root Directory** nech prázdné (nebo `.`). V kořeni je `vercel.json`, který staví složku `krotitel-chyb`.
+4. Deploy.
 4. Framework: Next.js (detekuje se samo). Deploy.
 
 Nebo z počítače:
