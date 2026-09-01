@@ -2,6 +2,7 @@ export const TEST_QUESTION_COUNT = 20;
 export const VELKY_TEST_MINUTES = 30;
 export const VELKY_TEST_QUESTION_COUNT = TEST_QUESTION_COUNT;
 export const BLOOM_PCT = 70;
+export const STREAK_FOR_SHIELD = 3;
 
 export function formatClock(totalSeconds: number) {
   const clamped = Math.max(0, totalSeconds);
