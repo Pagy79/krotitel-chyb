@@ -10,6 +10,7 @@ import { TopicIconBadge } from "@/components/TopicIcons";
 import { useTestProgress } from "@/hooks/useTestProgress";
 import { useSession } from "@/hooks/useSession";
 import { PaywallModal } from "@/components/PaywallModal";
+import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
 import { canTakeTest } from "@/lib/entitlements";
 import { getTrophy, MISTAKES_QUIZ_LENGTH, TEST_QUESTION_COUNT, VELKY_TEST_MINUTES, VELKY_TEST_QUESTION_COUNT } from "@/lib/velkyTestRules";
 import type { TopicId } from "@/lib/types";
@@ -170,7 +171,7 @@ export function Dashboard() {
                   <span className="text-xs font-medium text-emerald-300">1× zdarma tento týden</span>
                 ) : (
                   <span className="text-xs font-medium text-amber-300">
-                    {canTakeTest("big", session).message.split(".")[0]}.
+                    {canTakeTest("big", session).message?.split(".")[0] ?? "Další test nanečisto je za limit"}.
                   </span>
                 ))}
             </div>
