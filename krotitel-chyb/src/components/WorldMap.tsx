@@ -1,5 +1,6 @@
 "use client";
 
+import { CardboardShell } from "@/components/CardboardShell";
 import { TOPICS } from "@/data/topics";
 import { C } from "@/data/theme";
 import { Creature } from "@/components/Creature";
@@ -25,15 +26,14 @@ export function WorldMap({
   onPick: (id: TopicId) => void;
 }) {
   return (
-    <div
-      className="rounded-[28px] overflow-hidden mb-5 grid grid-cols-4 flex-shrink-0"
-      style={{
-        border: "1px solid #E5E0D8",
-        boxShadow: C.paperShadow,
-        minHeight: 132,
-        height: 132,
-      }}
-    >
+    <CardboardShell face="#D8B68A" edge="#8A5A32" radius="1.6rem" className="mb-5">
+      <div
+        className="relative z-10 grid grid-cols-4 overflow-hidden rounded-[1.35rem]"
+        style={{
+          minHeight: 132,
+          height: 132,
+        }}
+      >
       {TOPICS.map((t, i) => {
         const pct = lastByTopic[t.id];
         const src = landscapeSrc(t.id, pct);
@@ -45,29 +45,36 @@ export function WorldMap({
             className="relative text-left overflow-hidden border-0 p-0 h-full min-h-[132px]"
             style={{
               borderLeft: i === 0 ? undefined : `1px solid ${C.line}`,
-              backgroundColor: "#C9A882",
-              backgroundImage: `url(${src})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
             }}
             aria-label={`${t.name}: ${pct != null ? `${pct} %` : "zatím bez testu"}`}
           >
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-2 pt-1">
-              <span
-                className="absolute top-1.5 right-1.5 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-black text-center tabular-nums"
-                style={{
-                  backgroundColor: "rgba(255,248,236,0.92)",
-                  color: pctTone(pct),
-                  boxShadow: "0 1px 4px rgba(42,31,24,0.18)",
-                }}
-              >
-                {pct != null ? `${pct}%` : "—"}
-              </span>
-              <Creature symbol={t.symbol} wildness={creatureWildness(pct, wildness[t.id])} size={44} />
-            </div>
+            <span
+              className="absolute inset-0"
+              style={{
+                backgroundColor: "#C9A882",
+                backgroundImage: `url(${src})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+              aria-hidden
+            />
+            <span
+              className="absolute top-1.5 right-1.5 z-10 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-black text-center tabular-nums"
+              style={{
+                backgroundColor: "rgba(255,248,236,0.92)",
+                color: pctTone(pct),
+                boxShadow: "0 1px 4px rgba(42,31,24,0.18)",
+              }}
+            >
+              {pct != null ? `${pct}%` : "—"}
+            </span>
+            <span className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+              <Creature symbol={t.symbol} wildness={creatureWildness(pct, wildness[t.id])} size={56} />
+            </span>
           </button>
         );
       })}
-    </div>
+      </div>
+    </CardboardShell>
   );
 }

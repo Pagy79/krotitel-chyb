@@ -1,4 +1,5 @@
 export const TEST_QUESTION_COUNT = 20;
+export const MISTAKES_QUIZ_LENGTH = 20;
 export const VELKY_TEST_MINUTES = 30;
 export const VELKY_TEST_QUESTION_COUNT = TEST_QUESTION_COUNT;
 export const BLOOM_PCT = 70;
@@ -12,11 +13,12 @@ export function formatClock(totalSeconds: number) {
 }
 
 export function getTrophy(percentage: number) {
-  if (percentage >= 90) return { emoji: "🏆", label: "Zlatý pohár" };
-  if (percentage >= 80) return { emoji: "🥈", label: "Stříbrný pohár" };
-  if (percentage >= 70) return { emoji: "🥉", label: "Bronzový pohár" };
+  if (percentage >= 90) return { emoji: "🏆", label: "Zlatý pohár", tone: "text-amber-500" };
+  if (percentage >= 80) return { emoji: "🥈", label: "Stříbrný pohár", tone: "text-zinc-400" };
+  if (percentage >= 70) return { emoji: "🥉", label: "Bronzový pohár", tone: "text-orange-400" };
   return {
     emoji: null as string | null,
-    label: "Ještě to není pohár — zkus to znovu, tvorové počkají.",
+    label: "Není to špatné, ale chce to víc testovat a učit se.",
+    tone: "text-zinc-400",
   };
 }

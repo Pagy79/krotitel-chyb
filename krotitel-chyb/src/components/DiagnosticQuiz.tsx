@@ -1,15 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DIAGNOSTIC_POOL, MISCONCEPTS } from "@/data/diagnostic";
-import { C, TAME_STEP } from "@/data/theme";
+import { TAME_STEP } from "@/data/theme";
 import { Creature } from "@/components/Creature";
-import { QuizFrame } from "@/components/QuizFrame";
-import { TOPIC_THEMES } from "@/data/topicThemes";
+import { QuizPravopisLayout, QUIZ_STACK_FRAME } from "@/components/QuizPravopisLayout";
+import { Result } from "@/components/Result";
 import { shuffleArray } from "@/lib/shuffle";
 import { saveAttempt } from "@/lib/attempts";
+import { questionKey } from "@/lib/questionBank";
 import { TEST_QUESTION_COUNT } from "@/lib/velkyTestRules";
-import type { DiagnosticQuestion, FlagStatus, MisconceptId, ShuffledOption, Topic } from "@/lib/types";
+import type { DiagnosticQuestion, FlagStatus, MisconceptId, QuizQuestion, ShuffledOption, Topic } from "@/lib/types";
 
 function shuffleOptions(question: DiagnosticQuestion): ShuffledOption[] {
   return shuffleArray(
@@ -28,6 +29,7 @@ export function DiagnosticQuiz({
   onBloom,
   onClose,
   onFinish,
+  onDrillMistakes,
 }: {
   topic: Topic;
   wildness: number;
@@ -36,8 +38,9 @@ export function DiagnosticQuiz({
   onBloom?: () => void;
   onClose: () => void;
   onFinish: () => void;
+  onDrillMistakes?: (ids: string[]) => void;
 }) {
-  const [pool] = useState(() => shuffleArray(DIAGNOSTIC_POOL).slice(0, TEST_QUESTION_COUNT));
+  const [pool, setPool] = useState<DiagnosticQuestion[]>([]);
   const [answeredIds, setAnsweredIds] = useState<string[]>([]);
   const [status, setStatus] = useState<StatusMap>({ M1: "none", M2: "none", M3: "none", M4: "none" });
   const [priority, setPriority] = useState<MisconceptId | null>(null);
@@ -45,19 +48,36 @@ export function DiagnosticQuiz({
   const [diagnosedTag, setDiagnosedTag] = useState<MisconceptId | null>(null);
   const [microQueue, setMicroQueue] = useState<DiagnosticQuestion[]>([]);
   const [microIndex, setMicroIndex] = useState(0);
-  const [current, setCurrent] = useState<DiagnosticQuestion>(() => pool[0]);
-  const [options, setOptions] = useState<ShuffledOption[]>(() => shuffleOptions(pool[0]));
+  const [current, setCurrent] = useState<DiagnosticQuestion | null>(null);
+  const [options, setOptions] = useState<ShuffledOption[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [evaluated, setEvaluated] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const quizCorrectRef = useRef(0);
   const savedRef = useRef(false);
+  const answerLog = useRef<{ questionId: string; category: "vyrazy"; isCorrect: boolean; hintUsed: boolean; pointsEarned: number }[]>([]);
+
+  useEffect(() => {
+    const next = shuffleArray(DIAGNOSTIC_POOL).slice(0, TEST_QUESTION_COUNT);
+    setPool(next);
+    setCurrent(next[0] ?? null);
+    setOptions(next[0] ? shuffleOptions(next[0]) : []);
+  }, []);
 
   function finishQuiz() {
     if (!savedRef.current) {
       savedRef.current = true;
       const pct = pool.length > 0 ? (quizCorrectRef.current / pool.length) * 100 : 0;
-      saveAttempt({ mode: "practice", category: "vyrazy", percentage: pct });
+      void saveAttempt({
+        mode: "practice",
+        category: "vyrazy",
+        percentage: pct,
+        score: answerLog.current.reduce((sum, row) => sum + (row.pointsEarned ?? 0), 0),
+        maxScore: pool.length * 2,
+        questionCount: pool.length,
+        answeredCount: answerLog.current.length,
+        answers: answerLog.current,
+      });
       if (pct >= 70) onBloom?.();
     }
     setMode("done");
@@ -79,12 +99,25 @@ export function DiagnosticQuiz({
     setShowHint(false);
   }
 
-  function handleCheck() {
-    if (selected === null || evaluated) return;
-    const opt = options[selected];
+  function handleCheck(pickedIndex?: number) {
+    const idx = pickedIndex ?? selected;
+    if (!current || idx === null || evaluated) return;
+    const opt = options[idx];
+    setSelected(idx);
     setEvaluated(true);
     if (!answeredIds.includes(current.id)) {
       setAnsweredIds((ids) => [...ids, current.id]);
+    }
+
+    const qid = questionKey("vyrazy", current.id);
+    if (!answerLog.current.some((row) => row.questionId === qid)) {
+      answerLog.current.push({
+        questionId: qid,
+        category: "vyrazy",
+        isCorrect: !!opt.correct,
+        hintUsed: showHint,
+        pointsEarned: opt.correct ? (showHint ? 1 : 2) : 0,
+      });
     }
 
     if (opt.correct) {
@@ -115,6 +148,7 @@ export function DiagnosticQuiz({
   }
 
   function handleNext() {
+    if (!current) return;
     const ids = answeredIds.includes(current.id) ? answeredIds : [...answeredIds, current.id];
     if (ids.length !== answeredIds.length) setAnsweredIds(ids);
     if (diagnosedTag) {
@@ -168,25 +202,20 @@ export function DiagnosticQuiz({
   if (mode === "diagnosis" && diagnosedTag) {
     const info = MISCONCEPTS[diagnosedTag];
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-7">
+      <div className="flex-1 flex flex-col items-center justify-center text-center p-7" style={QUIZ_STACK_FRAME}>
         <Creature symbol={topic.symbol} wildness={wildness} mood="curious" size={90} />
-        <h2 className="text-lg font-extrabold mt-4 mb-2" style={{ color: C.ink }}>
-          Našli jsme vzorec
-        </h2>
-        <p className="text-sm leading-relaxed mb-1" style={{ color: C.inkDim }}>
-          {info.diagnosis}
-        </p>
-        <p className="text-xs leading-relaxed mb-6" style={{ color: C.inkDim }}>
+        <h2 className="text-lg font-extrabold mt-4 mb-2 text-white">Našli jsme vzorec</h2>
+        <p className="text-sm leading-relaxed mb-1 text-indigo-100">{info.diagnosis}</p>
+        <p className="text-xs leading-relaxed mb-6 text-indigo-200/80">
           Zbytek zvládáš. Zaměříme se přesně na tohle — 2minutový mikro-trénink, ne celé opakování.
         </p>
         <button
           onClick={startMicroTraining}
-          className="paper-btn w-full py-3.5 font-bold text-sm mb-2.5"
-          style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-3.5 rounded-xl mb-2.5"
         >
           Zkrotit tenhle vzorec
         </button>
-        <button onClick={onClose} className="text-xs font-medium" style={{ color: C.inkDim }}>
+        <button onClick={onClose} className="text-xs font-medium text-indigo-200">
           Zatím ne, vrátit se zpět
         </button>
       </div>
@@ -194,110 +223,60 @@ export function DiagnosticQuiz({
   }
 
   if (mode === "done") {
+    const wrongIds = answerLog.current.filter((row) => !row.isCorrect).map((row) => row.questionId);
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-7">
-        <Creature symbol={topic.symbol} wildness={wildness} mood="happy" size={100} />
-        <h2 className="text-lg font-extrabold mt-4 mb-2" style={{ color: C.ink }}>
-          Diagnostická série hotová
-        </h2>
-        <p className="text-2xl font-black mb-2" style={{ color: C.ink }}>
-          {pool.length > 0 ? Math.round((quizCorrectRef.current / pool.length) * 100) : 0} %
-        </p>
-        <p className="text-sm leading-relaxed mb-6" style={{ color: C.inkDim }}>
-          Výsledek posledního testu uvidíš u tvora na mapě.
-        </p>
-        <button
-          onClick={onFinish}
-          className="paper-btn w-full py-4 font-bold text-base"
-          style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
-        >
-          Zpátky ke tvorům
-        </button>
-      </div>
+      <Result
+        lastPct={pool.length > 0 ? Math.round((quizCorrectRef.current / pool.length) * 100) : 0}
+        correctCount={quizCorrectRef.current}
+        total={pool.length}
+        wrongCount={wrongIds.length}
+        onDrillMistakes={wrongIds.length > 0 && onDrillMistakes ? () => onDrillMistakes(wrongIds) : undefined}
+        onBack={onFinish}
+      />
     );
   }
 
+  if (!current) {
+    return <div className="flex-1 min-h-0" style={QUIZ_STACK_FRAME} />;
+  }
+
   const isMicro = mode === "microtraining";
-  const selectedOpt = selected !== null ? options[selected] : null;
   const quizStep = answeredIds.includes(current.id) ? answeredIds.length : answeredIds.length + 1;
-  const theme = TOPIC_THEMES[topic.id];
   const step = isMicro ? microIndex + 1 : Math.min(quizStep, pool.length);
   const total = isMicro ? microQueue.length : pool.length;
+  const correctIndex = Math.max(0, options.findIndex((o) => o.correct));
+  const mapped: QuizQuestion = {
+    id: 0,
+    topic: "vyrazy",
+    type: "mc",
+    workingText: current.workingText,
+    prompt: current.prompt,
+    options: options.map((o) => o.text),
+    correctIndex,
+    friendlyHint: MISCONCEPTS[current.misconcept].hint,
+    explanation: MISCONCEPTS[current.misconcept].hint,
+  };
 
   return (
-    <QuizFrame topic={topic} step={step} total={total} lastPct={lastPct} onClose={onClose}>
-      {isMicro && (
-        <p className="text-[11px] font-bold mb-2" style={{ color: theme.panelMuted }}>
-          Cílený trénink: {MISCONCEPTS[current.misconcept].name}
-        </p>
-      )}
-      <p className="text-[11px] font-black tracking-wide uppercase mb-2" style={{ color: theme.panelMuted }}>
-        Otázka
-      </p>
-      <p className="text-sm font-semibold leading-snug mb-3">{current.prompt}</p>
-      {!showHint && !evaluated && (
-        <button
-          onClick={() => setShowHint(true)}
-          className="text-[11px] underline decoration-dashed mb-3"
-          style={{ color: theme.panelMuted }}
-        >
-          💡 Nápověda
-        </button>
-      )}
-      {showHint && !evaluated && (
-        <p className="text-[11px] leading-relaxed mb-3" style={{ color: theme.panelMuted }}>
-          {MISCONCEPTS[current.misconcept].hint}
-        </p>
-      )}
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        {options.map((opt, i) => {
-          let bg = theme.chip;
-          let border = "transparent";
-          if (evaluated && opt.correct) {
-            border = C.accent;
-            bg = "#E8FFF6";
-          } else if (evaluated && i === selected) {
-            border = C.wild;
-            bg = "#FFE8E2";
-          } else if (!evaluated && selected === i) {
-            border = theme.bar;
-          }
-          return (
-            <button
-              key={i}
-              disabled={evaluated}
-              onClick={() => setSelected(i)}
-              className="rounded-2xl px-3 py-2.5 text-xs font-bold"
-              style={{ backgroundColor: bg, color: "#231830", border: `2px solid ${border}` }}
-            >
-              {opt.text}
-            </button>
-          );
-        })}
-      </div>
-      {!evaluated ? (
-        <button
-          onClick={handleCheck}
-          disabled={selected === null}
-          className="w-full py-3 rounded-2xl font-bold text-sm disabled:opacity-40"
-          style={{ backgroundColor: theme.bar, color: "#fff" }}
-        >
-          Zkontrolovat
-        </button>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <p className="text-[11px]" style={{ color: selectedOpt?.correct ? C.accent : C.wild }}>
-            {selectedOpt?.correct ? "Správně!" : "Ještě ne."}
-          </p>
-          <button
-            onClick={isMicro ? handleMicroNext : handleNext}
-            className="w-full py-3 rounded-2xl font-bold text-sm"
-            style={{ backgroundColor: theme.bar, color: "#fff" }}
-          >
-            Další
-          </button>
-        </div>
-      )}
-    </QuizFrame>
+    <QuizPravopisLayout
+      topic={topic}
+      wildness={wildness}
+      question={mapped}
+      index={step - 1}
+      total={total}
+      answerInput=""
+      setAnswerInput={() => {}}
+      selectedOption={selected}
+      showHint={showHint}
+      setShowHint={setShowHint}
+      evaluated={evaluated}
+      isCorrect={Boolean(selected !== null && options[selected]?.correct)}
+      onPickOption={(i) => handleCheck(i)}
+      onCheck={() => handleCheck()}
+      onNext={isMicro ? handleMicroNext : handleNext}
+      onClose={onClose}
+      banner={isMicro ? `Cílený trénink: ${MISCONCEPTS[current.misconcept].name}` : undefined}
+      nextLabel="Další otázka"
+    />
   );
 }

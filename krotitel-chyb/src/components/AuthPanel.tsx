@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { C } from "@/data/theme";
-import { signIn } from "@/lib/session";
+import { isSupabaseConfigured, signInWithEmail, signInWithGoogle, signUpWithEmail } from "@/lib/auth";
 
 function GoogleMark() {
   return (
@@ -21,13 +21,39 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const isLogin = mode === "login";
 
-  function goIn(e?: FormEvent, google = false) {
-    e?.preventDefault();
-    const mail = google ? "google@krotitel.local" : email.trim();
-    signIn({ email: mail || "zak@krotitel.local" });
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    if (!isSupabaseConfigured()) {
+      setError("Supabase ještě není nastavené. Doplň URL a klíč v .env.local.");
+      return;
+    }
+    setBusy(true);
+    const result = isLogin
+      ? await signInWithEmail(email.trim(), password)
+      : await signUpWithEmail(email.trim(), password);
+    setBusy(false);
+    if (result.error) {
+      if ("needsConfirm" in result && result.needsConfirm) {
+        setInfo(result.error);
+        return;
+      }
+      setError(result.error);
+      return;
+    }
     router.push("/svet");
+  }
+
+  async function onGoogle() {
+    setError(null);
+    const result = await signInWithGoogle();
+    if (result.error) setError(result.error);
   }
 
   return (
@@ -45,7 +71,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         {isLogin ? "Přihlas se a pokračuj v tréninku." : "Začni trénovat během chvilky."}
       </p>
 
-      <form onSubmit={goIn} className="flex flex-col gap-3">
+      <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input
           type="email"
           required
@@ -58,6 +84,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         <input
           type="password"
           required
+          minLength={6}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Heslo"
@@ -71,12 +98,23 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
             </Link>
           </div>
         )}
+        {error && (
+          <p className="text-sm" style={{ color: "#B45309" }}>
+            {error}
+          </p>
+        )}
+        {info && (
+          <p className="text-sm" style={{ color: C.inkDim }}>
+            {info}
+          </p>
+        )}
         <button
           type="submit"
-          className="paper-btn w-full py-3.5 font-bold text-base mt-2"
+          disabled={busy}
+          className="paper-btn w-full py-3.5 font-bold text-base mt-2 disabled:opacity-60"
           style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
         >
-          {isLogin ? "Přihlásit" : "Vytvořit účet"}
+          {busy ? "Chvilku…" : isLogin ? "Přihlásit" : "Vytvořit účet"}
         </button>
       </form>
 
@@ -90,7 +128,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
 
       <button
         type="button"
-        onClick={() => goIn(undefined, true)}
+        onClick={onGoogle}
         className="paper-btn-ghost w-full py-3.5 font-semibold text-sm gap-2.5"
         style={{ color: C.ink }}
       >

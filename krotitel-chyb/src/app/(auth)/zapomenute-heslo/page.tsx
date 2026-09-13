@@ -1,16 +1,27 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { C } from "@/data/theme";
+import { requestPasswordReset } from "@/lib/auth";
 
 export default function ZapomenuteHesloPage() {
-  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    router.push("/prihlaseni");
+    setError(null);
+    setBusy(true);
+    const result = await requestPasswordReset(email.trim());
+    setBusy(false);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    setSent(true);
   }
 
   return (
@@ -26,22 +37,36 @@ export default function ZapomenuteHesloPage() {
       <p className="text-sm mt-2 mb-7" style={{ color: C.inkDim }}>
         Napiš e-mail a pošleme ti odkaz na obnovení.
       </p>
-      <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <input
-          type="email"
-          required
-          placeholder="E-mail"
-          className="w-full rounded-2xl px-4 py-3.5 text-sm focus:outline-none"
-          style={{ backgroundColor: C.card, border: `1.5px solid ${C.line}`, color: C.ink, boxShadow: C.paperShadow }}
-        />
-        <button
-          type="submit"
-          className="paper-btn w-full py-3.5 font-bold text-base mt-2"
-          style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
-        >
-          Poslat odkaz
-        </button>
-      </form>
+      {sent ? (
+        <p className="text-sm" style={{ color: C.ink }}>
+          Když účet existuje, poslali jsme odkaz na {email}. Zkontroluj i spam.
+        </p>
+      ) : (
+        <form onSubmit={onSubmit} className="flex flex-col gap-3">
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-mail"
+            className="w-full rounded-2xl px-4 py-3.5 text-sm focus:outline-none"
+            style={{ backgroundColor: C.card, border: `1.5px solid ${C.line}`, color: C.ink, boxShadow: C.paperShadow }}
+          />
+          {error && (
+            <p className="text-sm" style={{ color: "#B45309" }}>
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={busy}
+            className="paper-btn w-full py-3.5 font-bold text-base mt-2 disabled:opacity-60"
+            style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
+          >
+            {busy ? "Chvilku…" : "Poslat odkaz"}
+          </button>
+        </form>
+      )}
       <Link href="/prihlaseni" className="text-center text-sm mt-auto pt-8 font-semibold" style={{ color: C.accentDeep }}>
         Zpět k přihlášení
       </Link>

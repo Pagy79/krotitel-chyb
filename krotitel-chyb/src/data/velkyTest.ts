@@ -14,6 +14,7 @@ function fromDiagnostic(): QuizQuestion[] {
       id: 2000 + i,
       topic: "vyrazy",
       type: "mc",
+      workingText: d.workingText,
       prompt: d.prompt,
       options,
       correctIndex,

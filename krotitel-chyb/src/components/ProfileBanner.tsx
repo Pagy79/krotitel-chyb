@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { C } from "@/data/theme";
+import { CompassKey } from "@/components/CompassKey";
 import type { Session } from "@/lib/session";
 
 function IconSettings({ className }: { className?: string }) {
@@ -243,22 +244,21 @@ export function ProfileBanner({
   onLogout: () => void;
 }) {
   return (
-    <div className="relative z-10 flex items-center justify-between mb-4">
-      <div className="leading-tight min-w-0">
-        <p className="text-sm font-semibold" style={{ color: C.ink }}>
-          Trénink
-        </p>
-        <p className="text-xs -mt-0.5" style={{ color: C.inkDim }}>
-          matematiky
-        </p>
+    <div className="relative z-10 flex items-center justify-between mb-6">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <CompassKey className="w-10 h-10 flex-shrink-0" />
+        <div className="leading-tight min-w-0">
+          <p className="text-sm font-semibold text-white">Trénink</p>
+          <p className="text-xs text-indigo-200/70 -mt-0.5">matematiky</p>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           <button
             type="button"
             onClick={onEditNickname}
-            className="text-xs font-semibold rounded-full px-3 py-1.5 truncate"
-            style={{ maxWidth: "7rem", backgroundColor: "#FFFFFF", color: C.ink, border: `1px solid ${C.line}` }}
+            className="text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-full px-3 py-1.5 truncate hover:border-zinc-300 hover:bg-zinc-50"
+            style={{ maxWidth: "7rem" }}
             aria-label="Upravit přezdívku"
           >
             {nickname || "Žák"}
@@ -268,10 +268,7 @@ export function ProfileBanner({
               Premium
             </span>
           ) : (
-            <span
-              className="flex-shrink-0 text-[10px] font-bold tracking-wide uppercase rounded-full px-2 py-1"
-              style={{ color: C.inkDim, backgroundColor: "#FFFFFF", border: `1px solid ${C.line}` }}
-            >
+            <span className="flex-shrink-0 text-[10px] font-bold tracking-wide uppercase text-zinc-500 bg-zinc-100 border border-zinc-200 rounded-full px-2 py-1">
               Zdarma
             </span>
           )}
@@ -279,8 +276,7 @@ export function ProfileBanner({
         <button
           type="button"
           onClick={onOpenSettings}
-          className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.line}`, color: C.inkDim }}
+          className="w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900"
           aria-label="Nastavení"
         >
           <IconSettings className="w-4 h-4" />
@@ -288,8 +284,7 @@ export function ProfileBanner({
         <button
           type="button"
           onClick={onLogout}
-          className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.line}`, color: C.inkDim }}
+          className="w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-red-600"
           aria-label="Odhlásit se"
         >
           <IconLogout className="w-4 h-4" />

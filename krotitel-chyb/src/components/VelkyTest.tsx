@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Quiz } from "@/components/Quiz";
-import { Creature } from "@/components/Creature";
-import { C } from "@/data/theme";
+import { Result } from "@/components/Result";
 import { TOPICS } from "@/data/topics";
 import { buildVelkyTest } from "@/data/velkyTest";
 import { useProgress } from "@/hooks/useProgress";
-import { loadTestProgress, saveAttempt } from "@/lib/attempts";
-import { getTrophy, BLOOM_PCT, STREAK_FOR_SHIELD, VELKY_TEST_MINUTES } from "@/lib/velkyTestRules";
+import { saveAttempt } from "@/lib/attempts";
+import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
+import { resolveQuestionKey } from "@/lib/questionBank";
+import { BLOOM_PCT, STREAK_FOR_SHIELD, VELKY_TEST_MINUTES } from "@/lib/velkyTestRules";
+import type { QuizQuestion, TopicId } from "@/lib/types";
 
 export function VelkyTest() {
   const router = useRouter();
   const { wildness, tame, bloomAll } = useProgress();
-  const pool = useMemo(() => buildVelkyTest(), []);
+  const [pool, setPool] = useState<QuizQuestion[]>([]);
   const maxScore = pool.length * 2;
 
   const [qIndex, setQIndex] = useState(0);
@@ -35,23 +37,21 @@ export function VelkyTest() {
   const [shieldPulse, setShieldPulse] = useState(false);
   const [eliminatedOptions, setEliminatedOptions] = useState<number[]>([]);
   const [shieldUsedThisQuestion, setShieldUsedThisQuestion] = useState(false);
+  const [lastPointsEarned, setLastPointsEarned] = useState<number | null>(null);
   const [timeRemainingSec, setTimeRemainingSec] = useState(VELKY_TEST_MINUTES * 60);
-  const [bestPct, setBestPct] = useState<number | null>(null);
-  const [lastPct, setLastPct] = useState<number | null>(null);
   const savedRef = useRef(false);
+  const answerLog = useRef<{ questionId: string; category: TopicId; isCorrect: boolean; hintUsed: boolean; pointsEarned: number }[]>([]);
 
   const currentQuestion = pool[qIndex];
   const topic = TOPICS.find((t) => t.id === currentQuestion?.topic);
   const close = () => router.push("/svet");
 
   useEffect(() => {
-    const { fullBestPct, fullLastPct } = loadTestProgress();
-    setBestPct(fullBestPct);
-    setLastPct(fullLastPct);
+    setPool(buildVelkyTest());
   }, []);
 
   useEffect(() => {
-    if (done) return;
+    if (done || pool.length === 0) return;
     if (timeRemainingSec <= 0) {
       setTimeExpired(true);
       setDone(true);
@@ -69,6 +69,7 @@ export function VelkyTest() {
     setIsCorrect(false);
     setEliminatedOptions([]);
     setShieldUsedThisQuestion(false);
+    setLastPointsEarned(null);
   }
 
   function grantShieldFromStreak() {
@@ -101,17 +102,19 @@ export function VelkyTest() {
     return true;
   }
 
-  function checkAnswer() {
+  function checkAnswer(pickedIndex?: number) {
     if (!currentQuestion) return;
+    const chosen = pickedIndex ?? selectedOption;
+    if (typeof pickedIndex === "number") setSelectedOption(pickedIndex);
     const correct =
       currentQuestion.type === "open"
         ? currentQuestion.accept.includes(answerInput.trim().replace(",", "."))
-        : selectedOption === currentQuestion.correctIndex;
+        : chosen === currentQuestion.correctIndex;
 
     if (!correct && hasShield) {
       absorbShield();
-      if (currentQuestion.type === "mc" && selectedOption !== null) {
-        setEliminatedOptions((prev) => [...prev, selectedOption]);
+      if (currentQuestion.type === "mc" && chosen !== null) {
+        setEliminatedOptions((prev) => [...prev, chosen]);
       }
       setSelectedOption(null);
       setAnswerInput("");
@@ -138,8 +141,19 @@ export function VelkyTest() {
       setConsecutiveWrong(wrongStreak);
       setStreakCount(0);
     }
+    setLastPointsEarned(points);
     setScore((s) => s + points);
     if (correct) setCorrectCount((c) => c + 1);
+    const questionId = resolveQuestionKey(currentQuestion);
+    if (!answerLog.current.some((row) => row.questionId === questionId)) {
+      answerLog.current.push({
+        questionId,
+        category: currentQuestion.topic,
+        isCorrect: correct,
+        hintUsed: showHint || shieldUsedThisQuestion,
+        pointsEarned: points,
+      });
+    }
   }
 
   function nextQuestion() {
@@ -151,84 +165,80 @@ export function VelkyTest() {
     }
   }
 
-  const pointsPct = maxScore > 0 ? Math.max(0, (score / maxScore) * 100) : 0;
-  const trophy = getTrophy(pointsPct);
+  const pointsPct = maxScore > 0 ? Math.max(0, Math.min(100, (score / maxScore) * 100)) : 0;
+
+  function restart() {
+    savedRef.current = false;
+    answerLog.current = [];
+    setPool(buildVelkyTest());
+    setQIndex(0);
+    resetQ();
+    setDone(false);
+    setTimeExpired(false);
+    setScore(0);
+    setCorrectCount(0);
+    setAnsweredCount(0);
+    setConsecutiveWrong(0);
+    setStreakCount(0);
+    setHasShield(false);
+    setTimeRemainingSec(VELKY_TEST_MINUTES * 60);
+  }
 
   useEffect(() => {
     if (!done || savedRef.current) return;
     savedRef.current = true;
     const rounded = Math.round(pointsPct);
-    saveAttempt({ mode: "full", category: null, percentage: rounded });
+    void saveAttempt({
+      mode: "full",
+      category: null,
+      percentage: rounded,
+      score,
+      maxScore,
+      questionCount: pool.length,
+      answeredCount,
+      timeExpired,
+      answers: answerLog.current,
+    });
     if (rounded >= BLOOM_PCT) bloomAll();
-    setBestPct((b) => (b == null ? rounded : Math.max(b, rounded)));
-  }, [done, pointsPct, bloomAll]);
+  }, [done, pointsPct, bloomAll, score, maxScore, pool.length, answeredCount, timeExpired]);
 
   if (done) {
+    const wrongRows = answerLog.current.filter((row) => !row.isCorrect);
+    const byCat = new Map<string, number>();
+    for (const row of wrongRows) {
+      const name = TOPICS.find((t) => t.id === row.category)?.name ?? row.category;
+      byCat.set(name, (byCat.get(name) ?? 0) + 1);
+    }
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-7">
-        <div className="flex gap-2 mb-4">
-          {TOPICS.map((t) => (
-            <Creature key={t.id} symbol={t.symbol} wildness={pointsPct >= BLOOM_PCT ? 0 : wildness[t.id]} size={52} />
-          ))}
-        </div>
-        {trophy.emoji ? (
-          <>
-            <p className="text-5xl leading-none mb-2">{trophy.emoji}</p>
-            <h2 className="text-xl font-extrabold mb-1" style={{ color: C.ink }}>
-              {trophy.label}
-            </h2>
-          </>
-        ) : (
-          <h2 className="text-lg font-extrabold mb-2" style={{ color: C.ink }}>
-            Velký test hotový
-          </h2>
-        )}
-        <div
-          className="w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center my-4"
-          style={{ borderColor: pointsPct >= 70 ? C.accent : C.wild }}
-        >
-          <p className="text-[10px] font-bold uppercase" style={{ color: C.inkDim }}>
-            body
-          </p>
-          <p className="text-2xl font-black" style={{ color: C.ink }}>
-            {Math.round(pointsPct)}%
-          </p>
-        </div>
-        <p className="text-xs mb-2" style={{ color: C.inkDim }}>
-          {correctCount}/{pool.length} správně · {score} z max. {maxScore} bodů
-        </p>
-        {bestPct != null && (
-          <p className="text-xs mb-2" style={{ color: C.gold }}>
-            Nejlepší: {bestPct} % · Poslední: {Math.round(pointsPct)} %
-          </p>
-        )}
-        {timeExpired && answeredCount < pool.length && (
-          <p className="text-xs rounded-lg px-3 py-2 mb-3" style={{ backgroundColor: `${C.wild}14`, color: C.wild }}>
-            Čas vypršel — nezodpovězené úlohy jsou za 0 bodů.
-          </p>
-        )}
-        {!trophy.emoji && (
-          <p className="text-sm leading-relaxed mb-6" style={{ color: C.inkDim }}>
-            {trophy.label} Pohár je od 70 / 80 / 90 % bodů.
-          </p>
-        )}
-        {trophy.emoji && (
-          <p className="text-sm leading-relaxed mb-8" style={{ color: C.inkDim }}>
-            Splnil/a jsi odměnu za {trophy.label.toLowerCase()}.
-          </p>
-        )}
-        <button
-          onClick={close}
-          className="w-full py-4 rounded-2xl font-bold text-base paper-btn"
-          style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
-        >
-          Zpátky ke tvorům
-        </button>
-      </div>
+      <Result
+        lastPct={Math.round(pointsPct)}
+        correctCount={correctCount}
+        total={pool.length}
+        wrongCount={wrongRows.length}
+        score={score}
+        maxScore={maxScore}
+        usePointsPct
+        mistakeCategories={[...byCat.entries()].map(([name, count]) => ({ name, count }))}
+        timeExpired={timeExpired}
+        unanswered={Math.max(0, pool.length - answeredCount)}
+        onDrillMistakes={
+          wrongRows.length > 0
+            ? () =>
+                router.push(
+                  `/chyby?ids=${encodeURIComponent(wrongRows.map((row) => row.questionId).join(","))}`,
+                )
+            : undefined
+        }
+        onRepeat={restart}
+        onBack={close}
+        backLabel="Zpět na výběr kategorií"
+      />
     );
   }
 
-  if (!currentQuestion || !topic) return null;
+  if (!currentQuestion || !topic) {
+    return <div className="flex-1 min-h-0" style={COSMIC_BG_STYLE} />;
+  }
 
   return (
     <Quiz
@@ -237,8 +247,6 @@ export function VelkyTest() {
       question={currentQuestion}
       index={qIndex}
       total={pool.length}
-      mix
-      lastPct={lastPct}
       answerInput={answerInput}
       setAnswerInput={setAnswerInput}
       selectedOption={selectedOption}
@@ -251,6 +259,7 @@ export function VelkyTest() {
       evaluated={evaluated}
       isCorrect={isCorrect}
       onCheck={checkAnswer}
+      onPickAndCheck={(i) => checkAnswer(i)}
       onNext={nextQuestion}
       onClose={close}
       streakCount={streakCount}
@@ -260,6 +269,7 @@ export function VelkyTest() {
       eliminatedOptions={eliminatedOptions}
       shieldJustSaved={shieldUsedThisQuestion && !evaluated}
       onOptionAttempt={onOptionAttempt}
+      lastPointsEarned={lastPointsEarned}
     />
   );
 }

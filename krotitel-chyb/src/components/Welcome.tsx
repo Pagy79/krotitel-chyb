@@ -5,14 +5,18 @@ import { CompassKey } from "@/components/CompassKey";
 import { WelcomeFeatureBanners } from "@/components/WelcomeFeatureBanners";
 import { WelcomeFormulas } from "@/components/WelcomeFormulas";
 
-const GREEN = "#0F4A3C";
-const GREEN_DARK = "#0A332C";
-
 export function Welcome() {
   return (
     <div
       className="relative flex-1 min-h-0 sm:min-h-[51rem] sm:flex-none flex flex-col overflow-hidden"
-      style={{ background: `linear-gradient(90deg, ${GREEN}, ${GREEN_DARK})` }}
+      style={{
+        backgroundColor: "#0a0818",
+        backgroundImage:
+          "linear-gradient(180deg, rgba(8,6,22,0.28) 0%, rgba(8,6,22,0.48) 100%), url(/nebula-bg.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 390 720" preserveAspectRatio="none" aria-hidden="true">
         <g fill="none" stroke="#E8F4F2" strokeWidth="1.6" opacity="0.22">
@@ -35,12 +39,12 @@ export function Welcome() {
         <div className="flex flex-col items-center text-center flex-shrink-0 mb-4">
           <CompassKey className="w-12 h-12 min-[390px]:w-14 min-[390px]:h-14 mb-2" />
           <h1 className="text-xl min-[390px]:text-2xl font-extrabold text-white leading-snug">
-            Krotitel chyb:
+            Kompas na školu:
             <br />
-            tvoje cesta začíná!
+            tvoje cesta začíná
           </h1>
           <p className="mt-2 text-sm text-white/80 leading-relaxed px-1 max-w-sm">
-            Vítejte v Krotitelích chyb! Připrav se na souboj s chybami a odemkni své světy.
+            Vítejte v Kompas na školu — modul Matematika. Trénuj, počítej a hraj se s matikou.
           </p>
         </div>
 
@@ -58,10 +62,11 @@ export function Welcome() {
           </Link>
           <Link
             href="/prihlaseni"
-            className="paper-btn-ghost w-full py-3.5 rounded-2xl font-bold text-base text-center text-white"
+            className="paper-btn-ghost w-full py-3.5 rounded-2xl font-bold text-base text-center"
             style={{
               backgroundColor: "rgba(255, 253, 247, 0.12)",
               borderColor: "rgba(255, 253, 247, 0.4)",
+              color: "#FFFFFF",
             }}
           >
             Již máš účet? Přihlásit se

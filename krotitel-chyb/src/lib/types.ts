@@ -11,25 +11,24 @@ export type Topic = {
   desc: string;
 };
 
-export type OpenQuestion = {
+type QuestionBase = {
   id: number;
   topic: TopicId;
-  type: "open";
+  workingText?: string;
   prompt: string;
   friendlyHint: string;
-  accept: string[];
   explanation: string;
 };
 
-export type McQuestion = {
-  id: number;
-  topic: TopicId;
+export type OpenQuestion = QuestionBase & {
+  type: "open";
+  accept: string[];
+};
+
+export type McQuestion = QuestionBase & {
   type: "mc";
-  prompt: string;
   options: string[];
   correctIndex: number;
-  friendlyHint: string;
-  explanation: string;
 };
 
 export type QuizQuestion = OpenQuestion | McQuestion;
@@ -43,6 +42,7 @@ export type DiagnosticOption = {
 export type DiagnosticQuestion = {
   id: string;
   misconcept: MisconceptId;
+  workingText?: string;
   prompt: string;
   options: DiagnosticOption[];
 };

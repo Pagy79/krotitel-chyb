@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DEFAULT_WILDNESS } from "@/data/topics";
-import { loadTestProgress, saveAttempt, type TestProgress } from "@/lib/attempts";
+import { loadProgressMerged, loadTestProgress, type TestProgress } from "@/lib/attempts";
 import type { TopicId } from "@/lib/types";
 
 const EMPTY: TestProgress = {
@@ -12,23 +12,22 @@ const EMPTY: TestProgress = {
   >,
   fullBestPct: null,
   fullLastPct: null,
+  categoryStats: {},
+  weakestArea: null,
+  mistakeQuestionIds: [],
+  hasPractice: false,
 };
 
 export function useTestProgress() {
   const [progress, setProgress] = useState<TestProgress>(EMPTY);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const wordKey = "krotitel-sim-neznama-47";
-    if (!window.localStorage.getItem(wordKey)) {
-      saveAttempt({ mode: "practice", category: "neznama", percentage: 47 });
-      window.localStorage.setItem(wordKey, "1");
-    }
-    const geoKey = "krotitel-sim-geometrie-65";
-    if (!window.localStorage.getItem(geoKey)) {
-      saveAttempt({ mode: "practice", category: "geometrie", percentage: 65 });
-      window.localStorage.setItem(geoKey, "1");
-    }
-    const refresh = () => setProgress(loadTestProgress());
+    const refresh = () => {
+      setProgress(loadTestProgress());
+      setReady(true);
+      void loadProgressMerged().then((next) => setProgress(next));
+    };
     refresh();
     window.addEventListener("krotitel-attempts", refresh);
     window.addEventListener("storage", refresh);
@@ -38,5 +37,5 @@ export function useTestProgress() {
     };
   }, []);
 
-  return progress;
+  return { ...progress, ready };
 }

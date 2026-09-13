@@ -2,16 +2,15 @@
 
 import { C } from "@/data/theme";
 import { Creature } from "@/components/Creature";
+import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
 import type { Topic } from "@/lib/types";
 
 export function ComingSoon({ topic, onClose }: { topic: Topic; onClose: () => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center p-7" style={{ backgroundColor: C.bg }}>
+    <div className="flex-1 flex flex-col items-center justify-center text-center p-7" style={COSMIC_BG_STYLE}>
       <Creature symbol={topic.symbol} wildness={1} mood="curious" size={100} />
-      <h2 className="text-lg font-extrabold mt-4 mb-2" style={{ color: C.ink }}>
-        Tenhle tvor ještě čeká
-      </h2>
-      <p className="text-sm leading-relaxed mb-8" style={{ color: C.inkDim }}>
+      <h2 className="text-lg font-extrabold mt-4 mb-2 text-white">Tenhle tvor ještě čeká</h2>
+      <p className="text-sm leading-relaxed mb-8 text-indigo-200/80">
         Otázky na „{topic.name}“ se teprve píšou. Zkus zatím jiné území.
       </p>
       <button

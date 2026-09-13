@@ -1,51 +1,117 @@
-function r(n: number) {
-  return n.toFixed(3);
-}
+"use client";
 
-export function CompassKey({ className = "w-44 h-56" }: { className?: string }) {
+import { useId } from "react";
+
+/** Antique bronze pocket compass — same asset + needle seek as Kompas ČJ. */
+export function CompassKey({ className = "w-14 h-14" }: { className?: string }) {
+  const uid = useId().replace(/:/g, "");
   return (
-    <svg viewBox="0 0 200 260" className={className} aria-hidden="true">
-      <ellipse cx="100" cy="248" rx="42" ry="7" fill="#0A332C" opacity="0.16" />
-      <g stroke="#1A3D38" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round">
-        <path
-          fill="#6DB5AE"
-          d="M86 138 H114 V198 H138 V210 H114 V222 H138 V234 H86 Z"
-        />
-        <circle cx="100" cy="78" r="70" fill="#6DB5AE" />
-        <circle cx="100" cy="8" r="9" fill="#6DB5AE" />
-        <circle cx="30" cy="78" r="9" fill="#6DB5AE" />
-        <circle cx="170" cy="78" r="9" fill="#6DB5AE" />
-        <circle cx="100" cy="78" r="52" fill="#F4EFE4" />
-      </g>
-      <circle cx="100" cy="78" r="44" fill="none" stroke="#1A3D38" strokeWidth="1.4" opacity="0.28" />
-      {Array.from({ length: 12 }, (_, i) => {
-        const a = (i * 30 * Math.PI) / 180;
-        const major = i % 3 === 0;
-        const inner = major ? 36 : 40;
-        const s = Math.sin(a);
-        const c = Math.cos(a);
-        return (
-          <line
-            key={i}
-            x1={r(100 + inner * s)}
-            y1={r(78 - inner * c)}
-            x2={r(100 + 44 * s)}
-            y2={r(78 - 44 * c)}
-            stroke="#1A3D38"
-            strokeWidth={major ? 2.2 : 1}
-            opacity={0.7}
-          />
-        );
-      })}
-      <text x="100" y="40" textAnchor="middle" fontSize="15" fontWeight="800" fill="#1A3D38">
-        N
-      </text>
-      <polygon points="100,32 108,78 100,72 92,78" fill="#D94A3D" stroke="#1A3D38" strokeWidth="1.4" />
-      <polygon points="100,124 108,78 100,84 92,78" fill="#8A9AA0" stroke="#1A3D38" strokeWidth="1.4" />
-      <circle cx="86" cy="70" r="5" fill="#1A3D38" />
-      <circle cx="114" cy="70" r="5" fill="#1A3D38" />
-      <circle cx="100" cy="78" r="6.5" fill="#1A3D38" />
-      <circle cx="100" cy="78" r="2.6" fill="#F4EFE4" />
-    </svg>
+    <span className={`headline-compass inline-flex ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 72 72" className="w-full h-full drop-shadow-[0_3px_10px_rgba(140,90,40,0.45)]">
+        <defs>
+          <linearGradient id={`${uid}-bronze`} x1="15%" y1="0%" x2="85%" y2="100%">
+            <stop offset="0%" stopColor="#C08A4F" />
+            <stop offset="40%" stopColor="#A66B35" />
+            <stop offset="75%" stopColor="#7A4A22" />
+            <stop offset="100%" stopColor="#4A2E16" />
+          </linearGradient>
+          <linearGradient id={`${uid}-bronze-hi`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#D4A574" />
+            <stop offset="45%" stopColor="#B87333" />
+            <stop offset="100%" stopColor="#6B4423" />
+          </linearGradient>
+          <radialGradient id={`${uid}-well`} cx="45%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#322820" />
+            <stop offset="55%" stopColor="#1F1812" />
+            <stop offset="100%" stopColor="#12100C" />
+          </radialGradient>
+          <linearGradient id={`${uid}-needle-n`} x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stopColor="#C08A4F" />
+            <stop offset="100%" stopColor="#8B5A2B" />
+          </linearGradient>
+          <linearGradient id={`${uid}-needle-s`} x1="50%" y1="100%" x2="50%" y2="0%">
+            <stop offset="0%" stopColor="#6B4423" />
+            <stop offset="100%" stopColor="#4A2E16" />
+          </linearGradient>
+        </defs>
+
+        <circle cx="36" cy="36" r="34" fill={`url(#${uid}-bronze)`} />
+        <circle cx="36" cy="36" r="30.5" fill={`url(#${uid}-bronze-hi)`} opacity="0.9" />
+        <circle cx="36" cy="36" r="28.5" fill={`url(#${uid}-well)`} />
+
+        <circle cx="36" cy="36" r="26.5" fill="none" stroke="#B87333" strokeWidth="1.4" opacity="0.85" />
+        <circle cx="36" cy="36" r="23" fill="none" stroke="#8B5A2B" strokeWidth="0.8" opacity="0.7" />
+        <circle cx="36" cy="36" r="19.5" fill="none" stroke="#A66B35" strokeWidth="0.7" opacity="0.55" />
+
+        {Array.from({ length: 36 }, (_, i) => {
+          const a = (i * 10 * Math.PI) / 180;
+          const major = i % 3 === 0;
+          const o = 27.8;
+          const inn = major ? 25.2 : 26.2;
+          return (
+            <line
+              key={`t-${i}`}
+              x1={36 + o * Math.sin(a)}
+              y1={36 - o * Math.cos(a)}
+              x2={36 + inn * Math.sin(a)}
+              y2={36 - inn * Math.cos(a)}
+              stroke="#B87333"
+              strokeWidth={major ? 1 : 0.55}
+              opacity={0.65}
+            />
+          );
+        })}
+
+        <g opacity="0.55" fill="none" stroke="#B87333" strokeWidth="0.85">
+          <circle cx="36" cy="36" r="14" />
+          <circle cx="36" cy="36" r="9.5" />
+          <circle cx="28" cy="30" r="4.2" />
+          <circle cx="44" cy="42" r="3.6" />
+          <circle cx="42" cy="27" r="2.8" />
+          <line x1="36" y1="22" x2="36" y2="50" opacity="0.7" />
+          <line x1="22" y1="36" x2="50" y2="36" opacity="0.7" />
+          <line x1="26" y1="26" x2="46" y2="46" opacity="0.45" />
+          <line x1="46" y1="26" x2="26" y2="46" opacity="0.45" />
+        </g>
+        {Array.from({ length: 10 }, (_, i) => {
+          const a = (i * 36 * Math.PI) / 180;
+          const r = 14;
+          return (
+            <circle
+              key={`g-${i}`}
+              cx={36 + r * Math.sin(a)}
+              cy={36 - r * Math.cos(a)}
+              r="1.05"
+              fill="#8B5A2B"
+              opacity="0.5"
+            />
+          );
+        })}
+
+        <g transform="rotate(35 36 36)">
+          <rect x="33.2" y="1.5" width="5.6" height="5" rx="1.2" fill={`url(#${uid}-bronze-hi)`} />
+          <rect x="34" y="0.2" width="4" height="2.2" rx="0.7" fill={`url(#${uid}-bronze)`} />
+          {[0, 1, 2].map((i) => (
+            <line
+              key={`c-${i}`}
+              x1={34.6 + i * 1.2}
+              y1="0.5"
+              x2={34.6 + i * 1.2}
+              y2="2.1"
+              stroke="#4A2E16"
+              strokeWidth="0.45"
+              opacity="0.7"
+            />
+          ))}
+        </g>
+
+        <g className="compass-needle">
+          <polygon points="36,11 39.4,36 36,33 32.6,36" fill={`url(#${uid}-needle-n)`} />
+          <polygon points="36,61 39.4,36 36,39 32.6,36" fill={`url(#${uid}-needle-s)`} />
+          <circle cx="36" cy="36" r="3.4" fill={`url(#${uid}-bronze-hi)`} stroke="#3D2817" strokeWidth="0.7" />
+          <circle cx="36" cy="36" r="1.4" fill="#B87333" />
+        </g>
+      </svg>
+    </span>
   );
 }

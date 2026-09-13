@@ -1,4 +1,5 @@
 export type Session = {
+  userId: string | null;
   email: string;
   nickname: string;
   isPremium: boolean;
@@ -10,6 +11,7 @@ const KEY = "krotitel-session-v1";
 export const SESSION_EVENT = "krotitel-session";
 
 const EMPTY: Session = {
+  userId: null,
   email: "",
   nickname: "Žák",
   isPremium: false,
@@ -51,10 +53,19 @@ export function patchSession(partial: Partial<Session>): Session {
   return next;
 }
 
-export function signIn({ email, nickname }: { email: string; nickname?: string }) {
+export function signIn({
+  email,
+  nickname,
+  userId,
+}: {
+  email: string;
+  nickname?: string;
+  userId?: string | null;
+}) {
   const current = loadSession();
   const sameUser = current.email && current.email.toLowerCase() === email.toLowerCase();
   return patchSession({
+    userId: userId ?? current.userId,
     email,
     nickname: nickname?.trim() || (sameUser ? current.nickname : nicknameFromEmail(email)),
     isPremium: sameUser ? current.isPremium : false,
