@@ -5,9 +5,12 @@ export type Session = {
   isPremium: boolean;
   notificationsEnabled: boolean;
   soundHapticsEnabled: boolean;
+  practiceTestsToday: number;
+  lastPracticeTestDate: string | null;
+  lastBigTestAt: string | null;
 };
 
-const KEY = "krotitel-session-v1";
+const KEY = "krotitel-session-v2";
 export const SESSION_EVENT = "krotitel-session";
 
 const EMPTY: Session = {
@@ -17,6 +20,9 @@ const EMPTY: Session = {
   isPremium: false,
   notificationsEnabled: false,
   soundHapticsEnabled: true,
+  practiceTestsToday: 0,
+  lastPracticeTestDate: null,
+  lastBigTestAt: null,
 };
 
 function emit() {
@@ -68,9 +74,12 @@ export function signIn({
     userId: userId ?? current.userId,
     email,
     nickname: nickname?.trim() || (sameUser ? current.nickname : nicknameFromEmail(email)),
-    isPremium: sameUser ? current.isPremium : false,
+    isPremium: false,
     notificationsEnabled: sameUser ? current.notificationsEnabled : false,
     soundHapticsEnabled: sameUser ? current.soundHapticsEnabled : true,
+    practiceTestsToday: sameUser ? current.practiceTestsToday : 0,
+    lastPracticeTestDate: sameUser ? current.lastPracticeTestDate : null,
+    lastBigTestAt: sameUser ? current.lastBigTestAt : null,
   });
 }
 

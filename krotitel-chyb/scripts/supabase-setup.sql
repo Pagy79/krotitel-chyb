@@ -1,9 +1,4 @@
--- =============================================================================
--- Kompas na školu · Matematika — spusť celé v SQL Editoru (Run)
--- Premium NENÍ ve Authentication → Users. Tam je jen auth.users.
--- Sloupce is_premium, nickname, limity jsou v Table Editor → public.profiles
--- (stejný model jako čeština).
--- =============================================================================
+/* Kompas matematika - spust cele v SQL Editoru. Premium je v Table Editor -> profiles. */
 
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -349,5 +344,48 @@ CREATE TRIGGER trg_guard_profile_columns
 
 GRANT EXECUTE ON FUNCTION public.start_practice_test() TO authenticated, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.start_big_test() TO authenticated, anon, service_role;
+
+CREATE OR REPLACE FUNCTION public.activate_promo_code(p_code text)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  uid uuid := auth.uid();
+  normalized text;
+BEGIN
+  IF uid IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  normalized := upper(regexp_replace(coalesce(p_code, ''), '[^a-zA-Z0-9]', '', 'g'));
+
+  IF normalized IS DISTINCT FROM 'R2D2C3PO' THEN
+    RETURN jsonb_build_object(
+      'ok', false,
+      'reason', 'invalid_code',
+      'message', 'Neplatný kód. Napiš si o něj na info@kompasnaskolu.cz'
+    );
+  END IF;
+
+  UPDATE public.profiles
+  SET is_premium = true
+  WHERE id = uid;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  RETURN jsonb_build_object(
+    'ok', true,
+    'is_premium', true,
+    'message', 'Vesmírný Premium přístup aktivován! 🚀'
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.activate_promo_code(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.activate_promo_code(text) TO authenticated;
 
 NOTIFY pgrst, 'reload schema';

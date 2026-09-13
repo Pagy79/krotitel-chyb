@@ -59,6 +59,9 @@ export function useSession() {
             nickname: "Žák",
             isPremium: false,
             notificationsEnabled: false,
+            practiceTestsToday: 0,
+            lastPracticeTestDate: null,
+            lastBigTestAt: null,
           });
         }
         return;
@@ -66,19 +69,43 @@ export function useSession() {
       void hydrate(next.user.id, next.user.email ?? "");
     });
 
+    const channel = supabase
+      .channel("krotitel-profile")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        (payload) => {
+          const row = payload.new as { id?: string } | null;
+          const current = loadSession();
+          if (!row?.id || row.id !== current.userId) return;
+          void hydrate(current.userId, current.email);
+        },
+      )
+      .subscribe();
+
     return () => {
       cancelled = true;
       data.subscription.unsubscribe();
+      void supabase.removeChannel(channel);
     };
+  }, []);
+
+  const refreshFromServer = useCallback(async () => {
+    const supabase = getSupabase();
+    if (!supabase) return false;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return false;
+    const profile = await fetchProfile(user.id);
+    if (!profile) return false;
+    await applyProfileToSession(user.id, user.email ?? "", profile);
+    return Boolean(profile.is_premium);
   }, []);
 
   const updateNickname = useCallback((nickname: string) => {
     setSession(patchSession({ nickname }));
     void updateNicknameRemote(nickname);
-  }, []);
-
-  const setPremium = useCallback((isPremium: boolean) => {
-    setSession(patchSession({ isPremium }));
   }, []);
 
   const setNotifications = useCallback((notificationsEnabled: boolean) => {
@@ -98,7 +125,7 @@ export function useSession() {
   return {
     session,
     updateNickname,
-    setPremium,
+    refreshFromServer,
     setNotifications,
     setSoundHaptics,
     signOut,

@@ -9,7 +9,8 @@ import { ProfileBanner, SettingsSheet } from "@/components/ProfileBanner";
 import { TopicIconBadge } from "@/components/TopicIcons";
 import { useTestProgress } from "@/hooks/useTestProgress";
 import { useSession } from "@/hooks/useSession";
-import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
+import { PaywallModal } from "@/components/PaywallModal";
+import { canTakeTest } from "@/lib/entitlements";
 import { getTrophy, MISTAKES_QUIZ_LENGTH, TEST_QUESTION_COUNT, VELKY_TEST_MINUTES, VELKY_TEST_QUESTION_COUNT } from "@/lib/velkyTestRules";
 import type { TopicId } from "@/lib/types";
 
@@ -32,15 +33,36 @@ export function Dashboard() {
   const router = useRouter();
   const { lastByTopic, fullBestPct, fullLastPct, categoryStats, weakestArea, mistakeQuestionIds, hasPractice } =
     useTestProgress();
-  const { session, updateNickname, setPremium, setNotifications, setSoundHaptics, signOut } = useSession();
+  const { session, updateNickname, refreshFromServer, setNotifications, setSoundHaptics, signOut } = useSession();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editNickname, setEditNickname] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState("");
   const bestTrophy = fullBestPct != null ? getTrophy(fullBestPct) : null;
   const weakestTopic = weakestArea ? TOPICS.find((t) => t.id === weakestArea.category) : null;
   const mistakesCount = Math.min(MISTAKES_QUIZ_LENGTH, mistakeQuestionIds.length);
 
+  function openPaywall(message?: string) {
+    setPaywallMessage(message || "");
+    setPaywallOpen(true);
+  }
+
   function pick(id: TopicId) {
+    const check = canTakeTest("practice", session);
+    if (!check.allowed) {
+      openPaywall(check.message);
+      return;
+    }
     router.push(`/tema/${id}`);
+  }
+
+  function startBigTest() {
+    const check = canTakeTest("big", session);
+    if (!check.allowed) {
+      openPaywall(check.message);
+      return;
+    }
+    router.push("/velky-test");
   }
 
   function openSettings(opts?: { editNickname?: boolean }) {
@@ -95,8 +117,34 @@ export function Dashboard() {
         </h1>
         <p className="relative z-10 text-sm text-indigo-200/70 mb-4">Matematika · 2026</p>
 
+        {!session.isPremium && (
+          <div
+            className="relative z-10 mb-5 flex items-center justify-between gap-3 rounded-2xl border px-3.5 py-3"
+            style={{
+              background: "linear-gradient(135deg, rgba(251, 191, 36, 0.14), rgba(249, 115, 22, 0.10))",
+              borderColor: "rgba(251, 191, 36, 0.35)",
+              boxShadow: "0 0 20px rgba(251, 191, 36, 0.08)",
+            }}
+          >
+            <div className="min-w-0 text-left">
+              <p className="text-sm font-semibold text-amber-100 leading-tight">Aktivovaná verze ZDARMA</p>
+              <p className="text-[11px] text-amber-100/70 leading-snug mt-0.5">
+                2 testy denně · 1 nanečisto za týden · chyby zdarma
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => openPaywall()}
+              className="flex-shrink-0 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl active:scale-95"
+            >
+              Aktivovat Premium
+            </button>
+          </div>
+        )}
+
         <button
-          onClick={() => router.push("/velky-test")}
+          type="button"
+          onClick={startBigTest}
           className="glass-panel relative z-10 w-full text-left rounded-2xl p-5 mb-0"
         >
         <div className="flex items-start justify-between mb-4">
@@ -113,9 +161,19 @@ export function Dashboard() {
         </div>
         <div className="flex items-end justify-between gap-3">
           <div className="flex flex-col gap-2 min-w-0">
-            <span className="inline-flex items-center justify-center bg-blue-600 text-white text-sm font-semibold px-7 py-2.5 rounded-full">
-              Start
-            </span>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="inline-flex items-center justify-center bg-blue-600 text-white text-sm font-semibold px-7 py-2.5 rounded-full">
+                Start
+              </span>
+              {!session.isPremium &&
+                (canTakeTest("big", session).allowed ? (
+                  <span className="text-xs font-medium text-emerald-300">1× zdarma tento týden</span>
+                ) : (
+                  <span className="text-xs font-medium text-amber-300">
+                    {canTakeTest("big", session).message.split(".")[0]}.
+                  </span>
+                ))}
+            </div>
             <div className="flex items-center gap-3 text-[11px] tabular-nums">
               <span className="text-indigo-200/80">
                 Nejlepší:{" "}
@@ -246,10 +304,21 @@ export function Dashboard() {
           onClose={() => setSettingsOpen(false)}
           onLogout={handleLogout}
           onSaveNickname={updateNickname}
-          onUnlockPremium={() => setPremium(true)}
-          onRestore={() => setPremium(session.isPremium)}
+          onUnlockPremium={() => {
+            setSettingsOpen(false);
+            openPaywall();
+          }}
+          onRestore={refreshFromServer}
           onToggleNotifications={() => void toggleNotifications()}
           onToggleSound={() => setSoundHaptics(!session.soundHapticsEnabled)}
+        />
+      )}
+      {paywallOpen && (
+        <PaywallModal
+          message={paywallMessage}
+          onClose={() => setPaywallOpen(false)}
+          onActivated={() => void refreshFromServer()}
+          onRestore={refreshFromServer}
         />
       )}
     </div>

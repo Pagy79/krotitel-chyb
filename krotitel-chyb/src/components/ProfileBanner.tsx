@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { C } from "@/data/theme";
+import { useEffect, useState } from "react";
 import { CompassKey } from "@/components/CompassKey";
+import { SETTINGS_GLASS_STYLE } from "@/lib/cosmicBg";
 import type { Session } from "@/lib/session";
 
 function IconSettings({ className }: { className?: string }) {
@@ -35,13 +35,19 @@ function IconChevron({ className }: { className?: string }) {
 function Toggle({ on }: { on: boolean }) {
   return (
     <div
-      className={`w-11 h-6 rounded-full flex items-center px-0.5 flex-shrink-0 ${on ? "justify-end" : "justify-start"}`}
-      style={{ backgroundColor: on ? C.accent : "#D4CFC4" }}
+      className={`w-11 h-6 rounded-full flex items-center px-0.5 flex-shrink-0 ${
+        on ? "bg-blue-600 justify-end" : "bg-white/20 justify-start"
+      }`}
     >
       <div className="w-5 h-5 rounded-full bg-white shadow" />
     </div>
   );
 }
+
+const TILE = {
+  backgroundColor: "rgba(255, 255, 255, 0.06)",
+  borderColor: "rgba(255, 255, 255, 0.12)",
+} as const;
 
 export function SettingsSheet({
   session,
@@ -60,13 +66,20 @@ export function SettingsSheet({
   onLogout: () => void;
   onSaveNickname: (value: string) => void;
   onUnlockPremium: () => void;
-  onRestore: () => void;
+  onRestore: () => void | Promise<boolean>;
   onToggleNotifications: () => void;
   onToggleSound: () => void;
 }) {
   const [draft, setDraft] = useState(session.nickname);
   const [editing, setEditing] = useState(editNickname);
   const [restored, setRestored] = useState(false);
+  const [restoreError, setRestoreError] = useState("");
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   function save() {
     const trimmed = draft.trim();
@@ -80,37 +93,35 @@ export function SettingsSheet({
 
   return (
     <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center overflow-hidden">
-      <button type="button" className="absolute inset-0 bg-zinc-900/50" aria-label="Zavřít" onClick={onClose} />
+      <button
+        type="button"
+        className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
+        aria-label="Zavřít"
+        onClick={onClose}
+      />
       <div
-        className="relative w-full max-h-[min(88%,88dvh)] flex flex-col rounded-t-3xl sm:rounded-3xl sm:mx-3 overflow-hidden"
-        style={{ backgroundColor: C.bg, border: "1px solid #EAE3D2" }}
+        className={`relative w-full max-h-[min(88%,88dvh)] flex flex-col rounded-t-3xl sm:rounded-3xl border backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+          visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"
+        }`}
+        style={SETTINGS_GLASS_STYLE}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{ borderColor: C.line }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
           <span className="w-14" aria-hidden />
-          <h2 className="text-base font-bold" style={{ color: C.ink }}>
-            Nastavení
-          </h2>
-          <button type="button" onClick={onClose} className="w-14 text-right text-sm font-semibold" style={{ color: C.accentDeep }}>
+          <h2 className="text-base font-bold text-white">Nastavení</h2>
+          <button type="button" onClick={onClose} className="w-14 text-right text-sm font-semibold text-blue-400 hover:text-blue-300">
             Hotovo
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
-          <div className="rounded-2xl p-4" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.line}` }}>
+          <div className="backdrop-blur-xl rounded-2xl border p-4" style={TILE}>
             <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                style={{ backgroundColor: C.accent }}
-              >
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                 {(session.nickname || "Ž").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: C.ink }}>
-                  {session.nickname || "Žák"}
-                </p>
-                <p className="text-xs truncate" style={{ color: C.inkDim }}>
-                  {session.email || "bez e-mailu"}
-                </p>
+                <p className="text-sm font-semibold text-white truncate">{session.nickname || "Žák"}</p>
+                <p className="text-xs text-indigo-300/70 truncate">{session.email || "bez e-mailu"}</p>
               </div>
             </div>
 
@@ -121,106 +132,95 @@ export function SettingsSheet({
                   setDraft(session.nickname);
                   setEditing(true);
                 }}
-                className="w-full flex items-center justify-between text-sm font-medium py-2.5 border-t"
-                style={{ color: C.ink, borderColor: C.line }}
+                className="w-full flex items-center justify-between text-sm font-medium text-indigo-100 hover:text-white py-2.5 border-t border-white/10"
               >
                 Upravit přezdívku
-                <IconChevron className="w-4 h-4" />
+                <IconChevron className="w-4 h-4 text-indigo-300/50" />
               </button>
             ) : (
-              <div className="flex flex-col gap-2 pt-2.5 border-t" style={{ borderColor: C.line }}>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    autoFocus
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") save();
-                    }}
-                    className="flex-1 rounded-xl px-3 py-2 text-sm focus:outline-none"
-                    style={{ backgroundColor: C.bg, border: `1px solid ${C.line}`, color: C.ink }}
-                  />
-                  <button
-                    type="button"
-                    onClick={save}
-                    disabled={!draft.trim()}
-                    className="paper-btn text-xs font-semibold px-3 py-2 rounded-xl disabled:opacity-40"
-                    style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
-                  >
-                    Uložit
-                  </button>
-                </div>
+              <div className="flex items-center gap-2 pt-2.5 border-t border-white/10">
+                <input
+                  type="text"
+                  autoFocus
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") save();
+                  }}
+                  className="flex-1 rounded-xl px-3 py-2 text-sm text-white border focus:outline-none focus:border-blue-400"
+                  style={{ backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.15)" }}
+                />
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={!draft.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl disabled:opacity-40"
+                >
+                  Uložit
+                </button>
               </div>
             )}
 
             <button
               type="button"
               onClick={onLogout}
-              className="w-full flex items-center justify-between text-sm font-medium py-2.5 border-t"
-              style={{ color: C.ink, borderColor: C.line }}
+              className="w-full flex items-center justify-between text-sm font-medium text-indigo-100 hover:text-white py-2.5 border-t border-white/10"
             >
               Odhlásit se
               <IconLogout className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="rounded-2xl p-4" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.line}` }}>
+          <div className="backdrop-blur-xl rounded-2xl border p-4" style={TILE}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: C.inkDim }}>
-                Předplatné
-              </p>
+              <p className="text-xs font-semibold text-indigo-300/70 uppercase tracking-wide">Předplatné</p>
               <span
-                className="text-xs font-bold px-2.5 py-1 rounded-full"
-                style={
+                className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                   session.isPremium
-                    ? { background: "linear-gradient(90deg, #FBBF24, #F97316)", color: "#FFFFFF" }
-                    : { backgroundColor: C.bg, color: C.inkDim }
-                }
+                    ? "bg-gradient-to-r from-amber-400 to-orange-500 text-white"
+                    : "bg-white/10 text-indigo-200"
+                }`}
               >
-                {session.isPremium ? "PREMIUM" : "Verze ZDARMA"}
+                {session.isPremium ? "PREMIUM 🚀" : "Verze ZDARMA"}
               </span>
             </div>
             {!session.isPremium && (
               <button
                 type="button"
                 onClick={onUnlockPremium}
-                className="paper-btn w-full font-semibold text-sm py-3 rounded-xl mb-2.5"
-                style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
+                className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold text-sm py-3 rounded-xl mb-2.5 active:scale-95"
               >
-                Odemknout PREMIUM verzi
+                Odemknout PREMIUM verzi ✨
               </button>
             )}
             <button
               type="button"
               onClick={() => {
-                onRestore();
-                setRestored(true);
+                setRestoreError("");
+                void (async () => {
+                  const ok = await onRestore();
+                  setRestored(ok === true);
+                  if (ok !== true) setRestoreError("Na účtu v Supabase PREMIUM zatím není.");
+                })();
               }}
-              className="w-full text-sm font-medium py-2.5 rounded-xl border"
-              style={{ color: C.ink, borderColor: C.line }}
+              className="w-full text-sm font-medium text-indigo-100 hover:text-white py-2.5 border border-white/15 rounded-xl"
             >
               Obnovit nákupy
             </button>
             {restored && (
-              <p className="text-xs font-medium mt-2.5 text-center" style={{ color: C.accentDeep }}>
-                Stav předplatného je aktuální.
-              </p>
+              <p className="text-xs text-emerald-400 font-medium mt-2.5 text-center">PREMIUM je aktivní na účtu.</p>
             )}
+            {restoreError && <p className="text-xs text-rose-300 mt-2.5 text-center">{restoreError}</p>}
           </div>
 
-          <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.line}` }}>
+          <div className="backdrop-blur-xl rounded-2xl border p-4 flex flex-col gap-3" style={TILE}>
             <button type="button" onClick={onToggleNotifications} className="w-full flex items-center gap-3">
-              <span className="flex-1 text-left text-sm font-medium" style={{ color: C.ink }}>
-                Denní připomínky procvičování
-              </span>
+              <span className="flex-1 text-left text-sm font-medium text-slate-100">Denní připomínky procvičování</span>
               <Toggle on={session.notificationsEnabled} />
             </button>
-            <div className="h-px" style={{ backgroundColor: C.line }} />
+            <div className="h-px bg-white/10" />
             <button type="button" onClick={onToggleSound} className="w-full flex items-center gap-3">
-              <span className="flex-1 text-left text-sm font-medium" style={{ color: C.ink }}>
-                Zvuky a haptická odezva
-              </span>
+              <span className="flex-1 text-left text-sm font-medium text-slate-100">Zvuky a haptická odezva</span>
               <Toggle on={session.soundHapticsEnabled} />
             </button>
           </div>

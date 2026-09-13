@@ -7,6 +7,9 @@ export type ProfileRow = {
   email: string | null;
   notifications_enabled: boolean;
   is_premium: boolean;
+  practice_tests_today: number | null;
+  last_practice_test_date: string | null;
+  last_big_test_at: string | null;
 };
 
 export function authRedirectTo() {
@@ -20,7 +23,7 @@ export async function fetchProfile(userId: string): Promise<ProfileRow | null> {
   for (let i = 0; i < 4; i++) {
     const { data, error } = await supabase
       .from("profiles")
-      .select("nickname, email, notifications_enabled, is_premium")
+      .select("nickname, email, notifications_enabled, is_premium, practice_tests_today, last_practice_test_date, last_big_test_at")
       .eq("id", userId)
       .maybeSingle();
     if (error) {
@@ -52,8 +55,11 @@ export async function applyProfileToSession(userId: string, email: string, profi
     userId,
     email: profile?.email || email,
     nickname: profile?.nickname?.trim() || nicknameFromEmail(email),
-    isPremium: profile?.is_premium ?? false,
+    isPremium: Boolean(profile?.is_premium),
     notificationsEnabled: profile?.notifications_enabled ?? false,
+    practiceTestsToday: profile?.practice_tests_today ?? 0,
+    lastPracticeTestDate: profile?.last_practice_test_date ?? null,
+    lastBigTestAt: profile?.last_big_test_at ?? null,
   });
 }
 
