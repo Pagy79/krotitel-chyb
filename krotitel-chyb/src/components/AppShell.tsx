@@ -7,7 +7,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       style={{ backgroundColor: C.bgDeep, fontFamily: "var(--font-sans), Nunito, ui-rounded, system-ui, sans-serif" }}
     >
       <div
-        className="w-full max-w-md h-full max-h-full min-h-0 sm:h-auto sm:min-h-[51rem] sm:max-h-[calc(100dvh-3rem)] overflow-hidden flex flex-col relative rounded-none sm:rounded-[28px]"
+        className="relative w-full max-w-md h-full max-h-full min-h-0 sm:h-auto sm:min-h-[51rem] sm:max-h-[calc(100dvh-3rem)] overflow-hidden flex flex-col rounded-none sm:rounded-[28px]"
         style={{
           backgroundColor: C.bg,
           border: "1px solid #EAE3D2",

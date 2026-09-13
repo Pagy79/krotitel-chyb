@@ -8,6 +8,8 @@ const MAP: Record<string, string> = {
     "Z bezpečnostních důvodů to zkus znovu až za chvíli.",
   "New password should be different from the old password.": "Nové heslo musí být jiné než původní.",
   "Auth session missing!": "Odkaz na obnovu hesla vypršel. Požádej o nový e-mail.",
+  "Unsupported provider: provider is not enabled": "Google přihlášení ještě není v Supabase zapnuté.",
+  "Validation failed: provider is not enabled": "Google přihlášení ještě není v Supabase zapnuté.",
 };
 
 export function translateAuthError(message: string) {

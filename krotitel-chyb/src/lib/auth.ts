@@ -11,7 +11,7 @@ export type ProfileRow = {
 
 export function authRedirectTo() {
   if (typeof window === "undefined") return undefined;
-  return `${window.location.origin}/auth/callback`;
+  return `${window.location.origin}/auth/callback/`;
 }
 
 export async function fetchProfile(userId: string): Promise<ProfileRow | null> {
@@ -31,6 +31,20 @@ export async function fetchProfile(userId: string): Promise<ProfileRow | null> {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   return null;
+}
+
+export async function ensureOwnProfile(userId: string, email: string): Promise<ProfileRow | null> {
+  const existing = await fetchProfile(userId);
+  if (existing) return existing;
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { error } = await supabase.from("profiles").upsert({
+    id: userId,
+    email,
+    nickname: nicknameFromEmail(email),
+  });
+  if (error) console.warn("Vytvoření profilu selhalo:", error.message);
+  return fetchProfile(userId);
 }
 
 export async function applyProfileToSession(userId: string, email: string, profile: ProfileRow | null) {
@@ -55,10 +69,9 @@ export async function signUpWithEmail(email: string, password: string) {
   if (data.user && !data.session) {
     return { error: "Zkontroluj e-mail a potvrď registraci, pak se přihlas.", needsConfirm: true };
   }
-  if (data.user) {
-    const profile = await fetchProfile(data.user.id);
-    await applyProfileToSession(data.user.id, email, profile);
-  }
+  if (!data.user) return { error: "Registrace se nepovedla." };
+  const profile = await ensureOwnProfile(data.user.id, email);
+  await applyProfileToSession(data.user.id, email, profile);
   return { error: null };
 }
 
@@ -68,10 +81,10 @@ export async function signInWithEmail(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: translateAuthError(error.message) };
   if (!data.user) return { error: "Přihlášení se nepovedlo." };
-  const profile = await fetchProfile(data.user.id);
+  const profile = await ensureOwnProfile(data.user.id, email);
   if (!profile) {
     await supabase.auth.signOut().catch(() => {});
-    return { error: "Tento účet už neexistuje. Založ si nový registrací." };
+    return { error: "Účet se založil, ale profil se nepodařilo připravit. Zkus to znovu." };
   }
   await applyProfileToSession(data.user.id, email, profile);
   return { error: null };
@@ -80,11 +93,17 @@ export async function signInWithEmail(email: string, password: string) {
 export async function signInWithGoogle() {
   const supabase = getSupabase();
   if (!supabase) return { error: "Supabase ještě není nastavené." };
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: authRedirectTo() },
+    options: {
+      redirectTo: authRedirectTo(),
+      skipBrowserRedirect: true,
+      queryParams: { prompt: "select_account" },
+    },
   });
   if (error) return { error: translateAuthError(error.message) };
+  if (!data.url) return { error: "Google přihlášení se nepovedlo spustit." };
+  window.location.assign(data.url);
   return { error: null };
 }
 

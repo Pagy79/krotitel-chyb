@@ -1,11 +1,21 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { CompassKey } from "@/components/CompassKey";
 import { WelcomeFeatureBanners } from "@/components/WelcomeFeatureBanners";
 import { WelcomeFormulas } from "@/components/WelcomeFormulas";
+import { AuthModal, type AuthModalMode } from "@/components/AuthModal";
 
-export function Welcome() {
+export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
+  const [authMode, setAuthMode] = useState<AuthModalMode | null>(initialAuth ?? null);
+
+  useEffect(() => {
+    const auth = new URLSearchParams(window.location.search).get("auth");
+    if (auth === "login" || auth === "register" || auth === "forgot" || auth === "reset") {
+      setAuthMode(auth);
+    }
+  }, []);
+
   return (
     <div
       className="relative flex-1 min-h-0 sm:min-h-[51rem] sm:flex-none flex flex-col overflow-hidden"
@@ -53,15 +63,17 @@ export function Welcome() {
         </div>
 
         <div className="flex flex-col items-center gap-3 pb-2 flex-shrink-0">
-          <Link
-            href="/registrace"
+          <button
+            type="button"
+            onClick={() => setAuthMode("register")}
             className="paper-btn w-full py-3.5 rounded-2xl font-bold text-base text-center tracking-wide text-white"
             style={{ backgroundColor: "#3F6B4C" }}
           >
             ZAČÍT DOBRODRUŽSTVÍ
-          </Link>
-          <Link
-            href="/prihlaseni"
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuthMode("login")}
             className="paper-btn-ghost w-full py-3.5 rounded-2xl font-bold text-base text-center"
             style={{
               backgroundColor: "rgba(255, 253, 247, 0.12)",
@@ -70,9 +82,13 @@ export function Welcome() {
             }}
           >
             Již máš účet? Přihlásit se
-          </Link>
+          </button>
         </div>
       </div>
+
+      {authMode && (
+        <AuthModal mode={authMode} onModeChange={setAuthMode} onClose={() => setAuthMode(null)} />
+      )}
     </div>
   );
 }

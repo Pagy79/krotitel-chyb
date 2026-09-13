@@ -1,5 +1,7 @@
-import { AuthPanel } from "@/components/AuthPanel";
+"use client";
+
+import { Welcome } from "@/components/Welcome";
 
 export default function PrihlaseniPage() {
-  return <AuthPanel mode="login" />;
+  return <Welcome initialAuth="login" />;
 }

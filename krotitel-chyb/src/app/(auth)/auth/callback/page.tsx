@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { C } from "@/data/theme";
-import { applyProfileToSession, fetchProfile } from "@/lib/auth";
+import { AUTH_GLASS_STYLE } from "@/lib/cosmicBg";
+import { applyProfileToSession, ensureOwnProfile } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
 
 export default function AuthCallbackPage() {
@@ -19,35 +19,47 @@ export default function AuthCallbackPage() {
       }
 
       const params = new URLSearchParams(window.location.search);
+      const oauthError = params.get("error_description") || params.get("error");
+      if (oauthError) {
+        setError(decodeURIComponent(oauthError.replace(/\+/g, " ")));
+        return;
+      }
+
+      let {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       const code = params.get("code");
-      if (code) {
+      if (!session && code) {
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        if (exchangeError) {
+        if (exchangeError && !/code verifier not found/i.test(exchangeError.message)) {
           setError(exchangeError.message);
           return;
         }
+        ({
+          data: { session },
+        } = await supabase.auth.getSession());
       }
 
-      const { data } = await supabase.auth.getSession();
-      const user = data.session?.user;
+      const user = session?.user;
       if (!user) {
         setError("Přihlášení se nepovedlo. Zkus to znovu.");
         return;
       }
 
-      const profile = await fetchProfile(user.id);
+      const profile = await ensureOwnProfile(user.id, user.email ?? "");
       await applyProfileToSession(user.id, user.email ?? "", profile);
 
       const type = params.get("type") || new URLSearchParams(window.location.hash.replace(/^#/, "")).get("type");
-      router.replace(type === "recovery" ? "/nove-heslo" : "/svet");
+      router.replace(type === "recovery" ? "/?auth=reset" : "/svet");
     }
 
     void finish();
   }, [router]);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-7">
-      <p className="text-sm" style={{ color: error ? "#B45309" : C.inkDim }}>
+    <div className="relative flex-1 flex flex-col items-center justify-center px-7 overflow-hidden" style={AUTH_GLASS_STYLE}>
+      <p className={`text-sm ${error ? "text-red-400" : "text-indigo-100"}`}>
         {error ?? "Dokončuju přihlášení…"}
       </p>
     </div>
