@@ -1,3 +1,4 @@
+import { PremiumCelebrateHost } from "@/components/PremiumCelebrateHost";
 import { C } from "@/data/theme";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         {children}
       </div>
+      <PremiumCelebrateHost />
     </div>
   );
 }

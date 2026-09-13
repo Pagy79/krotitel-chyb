@@ -318,6 +318,8 @@ export function Dashboard() {
         <PaywallModal
           message={paywallMessage}
           onClose={() => setPaywallOpen(false)}
+          soundEnabled={session.soundHapticsEnabled}
+          alreadyPremium={session.isPremium}
           onActivated={() => void refreshFromServer()}
           onRestore={refreshFromServer}
         />

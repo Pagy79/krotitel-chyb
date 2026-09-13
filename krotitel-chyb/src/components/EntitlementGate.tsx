@@ -9,7 +9,7 @@ import { useSession } from "@/hooks/useSession";
 
 export function EntitlementGate({ kind, children }: { kind: "practice" | "big"; children: React.ReactNode }) {
   const router = useRouter();
-  const { refreshFromServer } = useSession();
+  const { session, refreshFromServer } = useSession();
   const [state, setState] = useState<"loading" | "ok" | "blocked">("loading");
   const [message, setMessage] = useState("");
 
@@ -40,6 +40,8 @@ export function EntitlementGate({ kind, children }: { kind: "practice" | "big"; 
       <div className="relative flex-1 min-h-0" style={COSMIC_BG_STYLE}>
         <PaywallModal
           message={message}
+          soundEnabled={session.soundHapticsEnabled}
+          alreadyPremium={session.isPremium}
           onClose={() => router.push("/svet")}
           onActivated={() => void refreshFromServer()}
           onRestore={refreshFromServer}

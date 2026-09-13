@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { CompassKey } from "@/components/CompassKey";
+import { HelpSheet } from "@/components/HelpSheet";
+import { LegalSheet } from "@/components/LegalSheet";
 import { SETTINGS_GLASS_STYLE } from "@/lib/cosmicBg";
+import { celebratePremium } from "@/lib/cosmicSounds";
+import { PRIVACY_POLICY, TERMS_OF_USE } from "@/lib/legal";
 import type { Session } from "@/lib/session";
 
 function IconSettings({ className }: { className?: string }) {
@@ -75,6 +79,7 @@ export function SettingsSheet({
   const [restored, setRestored] = useState(false);
   const [restoreError, setRestoreError] = useState("");
   const [visible, setVisible] = useState(false);
+  const [legalView, setLegalView] = useState<"help" | "privacy" | "terms" | null>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -198,8 +203,10 @@ export function SettingsSheet({
               onClick={() => {
                 setRestoreError("");
                 void (async () => {
+                  const wasPremium = session.isPremium;
                   const ok = await onRestore();
                   setRestored(ok === true);
+                  if (ok === true && !wasPremium) celebratePremium(session.soundHapticsEnabled);
                   if (ok !== true) setRestoreError("Na účtu v Supabase PREMIUM zatím není.");
                 })();
               }}
@@ -224,8 +231,44 @@ export function SettingsSheet({
               <Toggle on={session.soundHapticsEnabled} />
             </button>
           </div>
+
+          <div className="backdrop-blur-xl rounded-2xl border p-4 flex flex-col" style={TILE}>
+            <button
+              type="button"
+              onClick={() => setLegalView("help")}
+              className="w-full flex items-center justify-between text-sm font-medium text-indigo-100 hover:text-white py-2.5"
+            >
+              Nápověda a podpora
+              <IconChevron className="w-4 h-4 text-indigo-300/50" />
+            </button>
+            <div className="h-px bg-white/10" />
+            <button
+              type="button"
+              onClick={() => setLegalView("privacy")}
+              className="w-full flex items-center justify-between text-sm font-medium text-indigo-100 hover:text-white py-2.5"
+            >
+              Ochrana osobních údajů
+              <IconChevron className="w-4 h-4 text-indigo-300/50" />
+            </button>
+            <div className="h-px bg-white/10" />
+            <button
+              type="button"
+              onClick={() => setLegalView("terms")}
+              className="w-full flex items-center justify-between text-sm font-medium text-indigo-100 hover:text-white py-2.5"
+            >
+              Podmínky použití
+              <IconChevron className="w-4 h-4 text-indigo-300/50" />
+            </button>
+          </div>
         </div>
       </div>
+      {legalView === "help" && <HelpSheet onClose={() => setLegalView(null)} />}
+      {legalView === "privacy" && (
+        <LegalSheet heading="Ochrana osobních údajů" document={PRIVACY_POLICY} onClose={() => setLegalView(null)} />
+      )}
+      {legalView === "terms" && (
+        <LegalSheet heading="Podmínky použití" document={TERMS_OF_USE} onClose={() => setLegalView(null)} />
+      )}
     </div>
   );
 }

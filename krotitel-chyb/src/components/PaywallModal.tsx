@@ -1,15 +1,22 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { LegalSheet } from "@/components/LegalSheet";
+import { celebratePremium } from "@/lib/cosmicSounds";
 import { activatePromoCode } from "@/lib/entitlements";
+import { PRIVACY_POLICY, TERMS_OF_USE } from "@/lib/legal";
 
 export function PaywallModal({
   message,
+  soundEnabled,
+  alreadyPremium,
   onClose,
   onActivated,
   onRestore,
 }: {
   message?: string;
+  soundEnabled: boolean;
+  alreadyPremium?: boolean;
   onClose: () => void;
   onActivated: () => void;
   onRestore: () => Promise<boolean>;
@@ -21,6 +28,8 @@ export function PaywallModal({
   const [promoLoading, setPromoLoading] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState("");
+  const [legalView, setLegalView] = useState<"privacy" | "terms" | null>(null);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -30,6 +39,10 @@ export function PaywallModal({
   async function onPromo(e: FormEvent) {
     e.preventDefault();
     if (promoLoading) return;
+    if (!consent) {
+      setPromoError("Nejdřív potvrď souhlas s podmínkami.");
+      return;
+    }
     setPromoError("");
     setPromoSuccess("");
     if (!promo.trim()) {
@@ -44,8 +57,9 @@ export function PaywallModal({
       return;
     }
     setPromoSuccess(result.message || "Vesmírný Premium přístup aktivován! 🚀");
+    celebratePremium(soundEnabled);
     onActivated();
-    setTimeout(() => onClose(), 1600);
+    setTimeout(() => onClose(), 1800);
   }
 
   async function restore() {
@@ -54,6 +68,7 @@ export function PaywallModal({
     const ok = await onRestore();
     setRestoring(false);
     if (ok) {
+      if (!alreadyPremium) celebratePremium(soundEnabled);
       onClose();
       return;
     }
@@ -104,6 +119,25 @@ export function PaywallModal({
             ),
           )}
         </div>
+        <label className="flex items-start gap-2.5 mb-4 text-left">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-0.5"
+          />
+          <span className="text-[11px] text-zinc-600 leading-relaxed">
+            Souhlasím s{" "}
+            <button type="button" className="text-violet-600 font-semibold underline" onClick={() => setLegalView("terms")}>
+              Podmínkami použití
+            </button>{" "}
+            a{" "}
+            <button type="button" className="text-violet-600 font-semibold underline" onClick={() => setLegalView("privacy")}>
+              Zásadami ochrany osobních údajů
+            </button>
+            . Výslovně žádám o okamžité zpřístupnění digitálního obsahu a beru na vědomí, že tím ztrácím právo na odstoupení od smlouvy do 14 dnů.
+          </span>
+        </label>
         <form onSubmit={onPromo} className="mb-4">
           <label className="block text-xs font-semibold text-zinc-700 mb-1.5 text-left">Promo kód</label>
           <div className="flex gap-2">
@@ -123,7 +157,7 @@ export function PaywallModal({
             />
             <button
               type="submit"
-              disabled={promoLoading || !!promoSuccess}
+              disabled={!consent || promoLoading || !!promoSuccess}
               className="flex-shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold px-4 py-3 disabled:opacity-60"
             >
               {promoLoading ? "…" : "Aktivovat kód"}
@@ -148,6 +182,12 @@ export function PaywallModal({
         </button>
         {restoreError && <p className="mt-2 text-xs text-rose-600 text-left">{restoreError}</p>}
       </div>
+      {legalView === "privacy" && (
+        <LegalSheet heading="Ochrana osobních údajů" document={PRIVACY_POLICY} onClose={() => setLegalView(null)} />
+      )}
+      {legalView === "terms" && (
+        <LegalSheet heading="Podmínky použití" document={TERMS_OF_USE} onClose={() => setLegalView(null)} />
+      )}
     </div>
   );
 }

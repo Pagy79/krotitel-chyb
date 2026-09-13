@@ -2,7 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { LegalSheet } from "@/components/LegalSheet";
 import { AUTH_GLASS_STYLE, COSMIC_BUTTON_SHADOW } from "@/lib/cosmicBg";
+import { PRIVACY_POLICY } from "@/lib/legal";
 import {
   isSupabaseConfigured,
   requestPasswordReset,
@@ -54,6 +56,7 @@ export function AuthModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -289,7 +292,20 @@ export function AuthModal({
             {mode === "register" ? "Už máš účet? Přihlásit se" : "Nemáš účet? Zaregistrovat se"}
           </button>
         )}
+
+        {(mode === "login" || mode === "register") && (
+          <p className="text-[11px] text-indigo-300/70 leading-relaxed text-center mt-4">
+            Zadáním e-mailu berete na vědomí zpracování osobních údajů dle našich{" "}
+            <button type="button" onClick={() => setShowPrivacy(true)} className="text-blue-300 underline underline-offset-2 font-medium">
+              Zásad ochrany osobních údajů
+            </button>
+            .
+          </p>
+        )}
       </div>
+      {showPrivacy && (
+        <LegalSheet heading="Ochrana osobních údajů" document={PRIVACY_POLICY} onClose={() => setShowPrivacy(false)} />
+      )}
     </div>
   );
 }
