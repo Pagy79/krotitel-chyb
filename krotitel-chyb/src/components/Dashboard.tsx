@@ -152,7 +152,7 @@ export function Dashboard() {
           <div className="min-w-0 pr-2">
             <p className="text-white text-base font-semibold mb-1">Zkus si test nanečisto</p>
             <p className="text-indigo-200/70 text-xs font-medium tracking-wide">
-              {VELKY_TEST_QUESTION_COUNT} úloh · {VELKY_TEST_MINUTES} minut · {VELKY_TEST_QUESTION_COUNT * 2} bodů
+              {VELKY_TEST_QUESTION_COUNT} úloh · {VELKY_TEST_MINUTES} minut · jako ostrá zkouška
             </p>
           </div>
           <svg viewBox="0 0 24 24" className="w-6 h-6 text-indigo-300 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>

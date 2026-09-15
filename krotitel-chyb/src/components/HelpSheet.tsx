@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SETTINGS_GLASS_STYLE } from "@/lib/cosmicBg";
-import { TEST_QUESTION_COUNT, VELKY_TEST_MINUTES } from "@/lib/velkyTestRules";
+import { TEST_QUESTION_COUNT, VELKY_TEST_MINUTES, VELKY_TEST_QUESTION_COUNT } from "@/lib/velkyTestRules";
 
 const TILE = {
   backgroundColor: "rgba(255, 255, 255, 0.06)",
@@ -43,7 +43,7 @@ export function HelpSheet({ onClose }: { onClose: () => void }) {
           <div className="backdrop-blur-xl rounded-2xl border p-4 flex flex-col gap-3" style={TILE}>
             <p className="text-xs font-semibold text-indigo-300/70 uppercase tracking-wide">Jak trénovat</p>
             <p className="text-xs text-indigo-200/90 leading-relaxed">
-              Vybereš téma a odpovídáš A–D. Po testu uvidíš % úspěšnosti. Tahák a chyby ti pomůžou se zlepšit. Test nanečisto má {TEST_QUESTION_COUNT} otázek a {VELKY_TEST_MINUTES} minut.
+              Tematické procvičování má {TEST_QUESTION_COUNT} otázek. Test nanečisto má {VELKY_TEST_QUESTION_COUNT} úloh, {VELKY_TEST_MINUTES} minut a {VELKY_TEST_QUESTION_COUNT * 2} bodů — stejný formát jako v češtině. Odpovídáš A–D.
             </p>
           </div>
 

@@ -35,6 +35,7 @@ type Props = {
   shieldJustSaved?: boolean;
   timeRemainingSec?: number | null;
   lastPointsEarned?: number | null;
+  mix?: boolean;
 };
 
 export function QuizPravopisLayout({
@@ -63,6 +64,7 @@ export function QuizPravopisLayout({
   shieldJustSaved,
   timeRemainingSec,
   lastPointsEarned,
+  mix,
 }: Props) {
   const open = question.type === "open";
   const progress = total > 0 ? (index / total) * 100 : 0;
@@ -89,7 +91,7 @@ export function QuizPravopisLayout({
           ✕
         </button>
         <span className="text-xs font-semibold text-indigo-200/90 uppercase tracking-wide text-center px-2">
-          {topic.name}
+          {mix ? "Test nanečisto" : topic.name}
         </span>
         <span className="text-sm font-semibold text-white whitespace-nowrap">
           {index + 1} z {total}
@@ -131,7 +133,7 @@ export function QuizPravopisLayout({
         <div
           className={`flex items-center justify-center gap-2 rounded-xl py-2.5 mb-4 text-sm font-semibold border ${
             timeRemainingSec <= 300
-              ? "bg-red-50 border-red-200 text-red-600"
+              ? "bg-red-50 border-red-200 text-red-600 animate-pulse"
               : "bg-zinc-100 border-zinc-200 text-zinc-700"
           }`}
         >

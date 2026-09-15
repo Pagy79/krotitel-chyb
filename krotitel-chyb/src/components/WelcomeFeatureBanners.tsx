@@ -99,7 +99,7 @@ const BANNERS = [
   },
   {
     title: "Testy nanečisto",
-    subtitle: "Odhal chytáky přijímacích zkoušek.",
+    subtitle: "30 úloh · 40 minut · jako ostrá zkouška.",
     gradient: "linear-gradient(to bottom right, #f43f5e, #ef4444)",
     glow: "rgba(244, 63, 94, 0.45)",
     icon: <IconFire />,

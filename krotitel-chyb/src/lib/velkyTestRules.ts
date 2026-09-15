@@ -1,7 +1,7 @@
 export const TEST_QUESTION_COUNT = 20;
 export const MISTAKES_QUIZ_LENGTH = 20;
-export const VELKY_TEST_MINUTES = 30;
-export const VELKY_TEST_QUESTION_COUNT = TEST_QUESTION_COUNT;
+export const VELKY_TEST_MINUTES = 40;
+export const VELKY_TEST_QUESTION_COUNT = 30;
 export const BLOOM_PCT = 70;
 export const STREAK_FOR_SHIELD = 3;
 

@@ -94,6 +94,7 @@ export function Quiz(props: Props) {
       shieldJustSaved={shieldJustSaved}
       timeRemainingSec={timeRemainingSec}
       lastPointsEarned={lastPointsEarned}
+      mix={props.mix}
     />
   );
 }

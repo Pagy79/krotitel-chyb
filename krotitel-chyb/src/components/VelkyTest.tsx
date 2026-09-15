@@ -13,7 +13,7 @@ import { resolveQuestionKey } from "@/lib/questionBank";
 import { BLOOM_PCT, STREAK_FOR_SHIELD, VELKY_TEST_MINUTES } from "@/lib/velkyTestRules";
 import type { QuizQuestion, TopicId } from "@/lib/types";
 
-export function VelkyTest() {
+export function VelkyTest({ onRetake }: { onRetake?: () => void }) {
   const router = useRouter();
   const { wildness, tame, bloomAll } = useProgress();
   const [pool, setPool] = useState<QuizQuestion[]>([]);
@@ -168,6 +168,10 @@ export function VelkyTest() {
   const pointsPct = maxScore > 0 ? Math.max(0, Math.min(100, (score / maxScore) * 100)) : 0;
 
   function restart() {
+    if (onRetake) {
+      onRetake();
+      return;
+    }
     savedRef.current = false;
     answerLog.current = [];
     setPool(buildVelkyTest());
@@ -243,6 +247,7 @@ export function VelkyTest() {
   return (
     <Quiz
       topic={topic}
+      mix
       wildness={wildness[topic.id]}
       question={currentQuestion}
       index={qIndex}
