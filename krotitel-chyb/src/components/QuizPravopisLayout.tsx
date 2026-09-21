@@ -234,12 +234,10 @@ export function QuizPravopisLayout({
         </div>
       )}
 
-      {topic.id === "procenta" && !mix && (
-        <QuizCalculator
-          resetKey={`${question.topic}-${question.id}-${index}`}
-          onInsert={open && !evaluated ? (value) => setAnswerInput(value) : undefined}
-        />
-      )}
+      <QuizCalculator
+        resetKey={`${question.topic}-${question.id}-${index}`}
+        onInsert={open && !evaluated ? (value) => setAnswerInput(value) : undefined}
+      />
 
       {evaluated && (
         <div
