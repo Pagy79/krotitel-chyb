@@ -1,5 +1,6 @@
 "use client";
 
+import { QuizCalculator } from "@/components/QuizCalculator";
 import { WorkingSource } from "@/components/WorkingSource";
 import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
 import { formatClock } from "@/lib/velkyTestRules";
@@ -36,6 +37,7 @@ type Props = {
   timeRemainingSec?: number | null;
   lastPointsEarned?: number | null;
   mix?: boolean;
+  openMissMessage?: string | null;
 };
 
 export function QuizPravopisLayout({
@@ -65,6 +67,7 @@ export function QuizPravopisLayout({
   timeRemainingSec,
   lastPointsEarned,
   mix,
+  openMissMessage,
 }: Props) {
   const open = question.type === "open";
   const progress = total > 0 ? (index / total) * 100 : 0;
@@ -231,6 +234,13 @@ export function QuizPravopisLayout({
         </div>
       )}
 
+      {topic.id === "procenta" && !mix && (
+        <QuizCalculator
+          resetKey={`${question.topic}-${question.id}-${index}`}
+          onInsert={open && !evaluated ? (value) => setAnswerInput(value) : undefined}
+        />
+      )}
+
       {evaluated && (
         <div
           className={`rounded-xl border p-4 mt-4 ${
@@ -261,6 +271,11 @@ export function QuizPravopisLayout({
           )}
           {lastPointsEarned === -1 && (
             <p className="text-xs italic text-zinc-500 mb-2">Penalizace: dvě špatné odpovědi za sebou.</p>
+          )}
+          {openMissMessage && (
+            <p className="text-sm font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2 leading-relaxed">
+              {openMissMessage}
+            </p>
           )}
           <p className="text-sm text-zinc-700 leading-relaxed mb-4">{question.explanation}</p>
           <button

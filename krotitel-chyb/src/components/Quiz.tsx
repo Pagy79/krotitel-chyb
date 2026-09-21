@@ -31,6 +31,7 @@ type Props = {
   onOptionAttempt?: (index: number) => boolean;
   onPickAndCheck?: (index: number) => void;
   lastPointsEarned?: number | null;
+  openMissMessage?: string | null;
 };
 
 export function Quiz(props: Props) {
@@ -60,6 +61,7 @@ export function Quiz(props: Props) {
     onOptionAttempt,
     onPickAndCheck,
     lastPointsEarned,
+    openMissMessage,
   } = props;
 
   return (
@@ -95,6 +97,7 @@ export function Quiz(props: Props) {
       timeRemainingSec={timeRemainingSec}
       lastPointsEarned={lastPointsEarned}
       mix={props.mix}
+      openMissMessage={openMissMessage}
     />
   );
 }

@@ -13,6 +13,7 @@ import { useProgress } from "@/hooks/useProgress";
 import { useTestProgress } from "@/hooks/useTestProgress";
 import { saveAttempt } from "@/lib/attempts";
 import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
+import { checkOpenAnswer } from "@/lib/openAnswer";
 import { resolveQuestionKey } from "@/lib/questionBank";
 import { TEST_QUESTION_COUNT } from "@/lib/velkyTestRules";
 import { shuffleArray } from "@/lib/shuffle";
@@ -29,6 +30,7 @@ export function TopicSession({ topicId }: { topicId: TopicId }) {
   const [showHint, setShowHint] = useState(false);
   const [evaluated, setEvaluated] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [openMissMessage, setOpenMissMessage] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const correctRef = useRef(0);
@@ -60,17 +62,24 @@ export function TopicSession({ topicId }: { topicId: TopicId }) {
     setShowHint(false);
     setEvaluated(false);
     setIsCorrect(false);
+    setOpenMissMessage(null);
   }
 
   function checkAnswer(pickedIndex?: number) {
     if (!currentQuestion) return;
     const chosen = pickedIndex ?? selectedOption;
-    const correct =
-      currentQuestion.type === "open"
-        ? currentQuestion.accept.includes(answerInput.trim().replace(",", "."))
-        : chosen === currentQuestion.correctIndex;
+    let correct = false;
+    let miss: string | null = null;
+    if (currentQuestion.type === "open") {
+      const result = checkOpenAnswer(answerInput, currentQuestion.accept, currentQuestion.prompt);
+      correct = result.correct;
+      miss = result.message ?? null;
+    } else {
+      correct = chosen === currentQuestion.correctIndex;
+    }
     if (typeof pickedIndex === "number") setSelectedOption(pickedIndex);
     setIsCorrect(correct);
+    setOpenMissMessage(miss);
     setEvaluated(true);
     const questionId = resolveQuestionKey(currentQuestion);
     if (!answerLog.current.some((row) => row.questionId === questionId)) {
@@ -163,6 +172,7 @@ export function TopicSession({ topicId }: { topicId: TopicId }) {
       setShowHint={setShowHint}
       evaluated={evaluated}
       isCorrect={isCorrect}
+      openMissMessage={openMissMessage}
       onCheck={checkAnswer}
       onPickAndCheck={(i) => checkAnswer(i)}
       onNext={nextQuestion}

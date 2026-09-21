@@ -22,7 +22,7 @@ export const QUESTIONS_PROCENTA: QuizQuestion[] = [
     friendlyHint: "Část vyděl celkem a výsledek vynásob stem. 21 a 28 jdou krátit.",
     accept: ["75"],
     explanation:
-      "21 z 28 je 21 ÷ 28 = 0,75, tedy 75 %. Past: spočítat 28 − 21 = 7 a zapsat 7 nebo 25 (to je podíl těch, kteří nejedou).",
+      "Správně je 75. 21 z 28 je 21 ÷ 28 = 0,75 a to jsou 75 %. Když necháš 0,75, je to podíl, ne procenta — ještě vynásob stem. Past: 28 − 21 = 7, nebo 25 (to je podíl těch, kteří nejedou).",
   },
   {
     id: 2,

@@ -9,6 +9,7 @@ import { buildVelkyTest } from "@/data/velkyTest";
 import { useProgress } from "@/hooks/useProgress";
 import { saveAttempt } from "@/lib/attempts";
 import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
+import { checkOpenAnswer } from "@/lib/openAnswer";
 import { resolveQuestionKey } from "@/lib/questionBank";
 import { BLOOM_PCT, STREAK_FOR_SHIELD, VELKY_TEST_MINUTES } from "@/lib/velkyTestRules";
 import type { QuizQuestion, TopicId } from "@/lib/types";
@@ -25,6 +26,7 @@ export function VelkyTest({ onRetake }: { onRetake?: () => void }) {
   const [showHint, setShowHint] = useState(false);
   const [evaluated, setEvaluated] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [openMissMessage, setOpenMissMessage] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [timeExpired, setTimeExpired] = useState(false);
 
@@ -70,6 +72,7 @@ export function VelkyTest({ onRetake }: { onRetake?: () => void }) {
     setEliminatedOptions([]);
     setShieldUsedThisQuestion(false);
     setLastPointsEarned(null);
+    setOpenMissMessage(null);
   }
 
   function grantShieldFromStreak() {
@@ -106,10 +109,15 @@ export function VelkyTest({ onRetake }: { onRetake?: () => void }) {
     if (!currentQuestion) return;
     const chosen = pickedIndex ?? selectedOption;
     if (typeof pickedIndex === "number") setSelectedOption(pickedIndex);
-    const correct =
-      currentQuestion.type === "open"
-        ? currentQuestion.accept.includes(answerInput.trim().replace(",", "."))
-        : chosen === currentQuestion.correctIndex;
+    let correct = false;
+    let miss: string | null = null;
+    if (currentQuestion.type === "open") {
+      const result = checkOpenAnswer(answerInput, currentQuestion.accept, currentQuestion.prompt);
+      correct = result.correct;
+      miss = result.message ?? null;
+    } else {
+      correct = chosen === currentQuestion.correctIndex;
+    }
 
     if (!correct && hasShield) {
       absorbShield();
@@ -118,10 +126,12 @@ export function VelkyTest({ onRetake }: { onRetake?: () => void }) {
       }
       setSelectedOption(null);
       setAnswerInput("");
+      setOpenMissMessage(null);
       return;
     }
 
     setIsCorrect(correct);
+    setOpenMissMessage(miss);
     setEvaluated(true);
     setAnsweredCount((c) => c + 1);
 
@@ -275,6 +285,7 @@ export function VelkyTest({ onRetake }: { onRetake?: () => void }) {
       shieldJustSaved={shieldUsedThisQuestion && !evaluated}
       onOptionAttempt={onOptionAttempt}
       lastPointsEarned={lastPointsEarned}
+      openMissMessage={openMissMessage}
     />
   );
 }
