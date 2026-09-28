@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 const TILE_STYLE = {
   backgroundColor: "rgba(255, 255, 255, 0.06)",
-  borderColor: "rgba(255, 255, 255, 0.22)",
   backdropFilter: "blur(20px)",
   WebkitBackdropFilter: "blur(20px)",
 } as const;
@@ -122,19 +121,19 @@ const BANNERS = [
 
 export function WelcomeFeatureBanners() {
   return (
-    <div className="flex flex-col gap-2.5 w-full">
+    <div className="flex flex-col gap-3 w-full">
       {BANNERS.map((item) => (
         <div
           key={item.title}
-          className="flex items-center gap-3 rounded-2xl p-3.5 border"
+          className="flex items-center gap-3.5 rounded-2xl px-4 py-3.5"
           style={TILE_STYLE}
         >
           <GearBadge gradient={item.gradient} glow={item.glow}>
             {item.icon}
           </GearBadge>
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-semibold text-slate-100">{item.title}</p>
-            <p className="text-xs text-indigo-200/70">{item.subtitle}</p>
+            <p className="text-sm font-semibold text-slate-100 leading-snug">{item.title}</p>
+            <p className="text-xs text-indigo-200/75 leading-snug mt-0.5">{item.subtitle}</p>
           </div>
           <IconChevron />
         </div>

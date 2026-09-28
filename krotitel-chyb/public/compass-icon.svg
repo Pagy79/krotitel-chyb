@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
+  <defs>
+    <linearGradient id="bronze" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#C08A4F"/>
+      <stop offset="40%" stop-color="#A66B35"/>
+      <stop offset="75%" stop-color="#7A4A22"/>
+      <stop offset="100%" stop-color="#4A2E16"/>
+    </linearGradient>
+    <linearGradient id="bronzeHi" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A574"/>
+      <stop offset="45%" stop-color="#B87333"/>
+      <stop offset="100%" stop-color="#6B4423"/>
+    </linearGradient>
+    <radialGradient id="well" cx="45%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#322820"/>
+      <stop offset="55%" stop-color="#1F1812"/>
+      <stop offset="100%" stop-color="#12100C"/>
+    </radialGradient>
+    <linearGradient id="needleN" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#C08A4F"/>
+      <stop offset="100%" stop-color="#8B5A2B"/>
+    </linearGradient>
+    <linearGradient id="needleS" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#6B4423"/>
+      <stop offset="100%" stop-color="#4A2E16"/>
+    </linearGradient>
+  </defs>
+  <circle cx="36" cy="36" r="34" fill="url(#bronze)"/>
+  <circle cx="36" cy="36" r="30.5" fill="url(#bronzeHi)" opacity="0.9"/>
+  <circle cx="36" cy="36" r="28.5" fill="url(#well)"/>
+  <circle cx="36" cy="36" r="26.5" fill="none" stroke="#B87333" stroke-width="1.4" opacity="0.85"/>
+  <g fill="none" stroke="#B87333" stroke-width="0.85" opacity="0.55">
+    <circle cx="36" cy="36" r="14"/>
+    <circle cx="36" cy="36" r="9.5"/>
+    <line x1="36" y1="22" x2="36" y2="50"/>
+    <line x1="22" y1="36" x2="50" y2="36"/>
+  </g>
+  <g transform="rotate(35 36 36)">
+    <polygon points="36,11 39.4,36 36,33 32.6,36" fill="url(#needleN)"/>
+    <polygon points="36,61 39.4,36 36,39 32.6,36" fill="url(#needleS)"/>
+    <circle cx="36" cy="36" r="3.4" fill="url(#bronzeHi)" stroke="#3D2817" stroke-width="0.7"/>
+    <circle cx="36" cy="36" r="1.4" fill="#B87333"/>
+  </g>
+</svg>

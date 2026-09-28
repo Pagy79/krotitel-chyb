@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CompassKey } from "@/components/CompassKey";
 import { LegalSheet } from "@/components/LegalSheet";
 import { AUTH_GLASS_STYLE, COSMIC_BUTTON_SHADOW } from "@/lib/cosmicBg";
 import { PRIVACY_POLICY } from "@/lib/legal";
@@ -175,7 +176,11 @@ export function AuthModal({
           </button>
         )}
 
-        <h2 className="text-lg font-bold text-white mb-1 pr-8">{title}</h2>
+        <div className="flex items-center gap-2.5 mb-3 pr-8">
+          <CompassKey className="w-9 h-9 flex-shrink-0" />
+          <p className="text-sm font-semibold text-white">Kompas-Matika</p>
+        </div>
+        <h2 className="text-lg font-bold text-white mb-1">{title}</h2>
         <p className="text-xs text-indigo-200/70 mb-5">{subtitle}</p>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-3 mb-5">

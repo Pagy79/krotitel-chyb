@@ -18,7 +18,7 @@ export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
 
   return (
     <div
-      className="relative flex-1 min-h-0 sm:min-h-[51rem] sm:flex-none flex flex-col overflow-hidden"
+      className="relative flex-1 min-h-0 flex flex-col overflow-hidden"
       style={{
         backgroundColor: "#0a0818",
         backgroundImage:
@@ -41,32 +41,30 @@ export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
         </g>
       </svg>
 
-      <div className="relative z-10 min-h-full sm:min-h-[51rem] flex flex-col p-5 sm:p-6">
-        <div className="relative flex-1 min-h-3 overflow-hidden" aria-hidden="true">
-          <WelcomeFormulas />
-        </div>
+      <WelcomeFormulas />
 
-        <div className="flex flex-col items-center text-center flex-shrink-0 mb-4">
-          <CompassKey className="w-12 h-12 min-[390px]:w-14 min-[390px]:h-14 mb-2" />
-          <h1 className="text-xl min-[390px]:text-2xl font-extrabold text-white leading-snug">
-            Kompas na školu:
+      <div className="relative z-10 h-full min-h-0 w-full max-w-lg mx-auto flex flex-col px-5 pt-10 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8 sm:pt-14">
+        <header className="flex-shrink-0 flex flex-col items-center text-center">
+          <CompassKey className="w-14 h-14 sm:w-16 sm:h-16 mb-3" />
+          <h1 className="text-2xl sm:text-[1.75rem] font-extrabold text-white leading-tight">
+            Kompas-Matika
             <br />
             tvoje cesta začíná
           </h1>
-          <p className="mt-2 text-sm text-white/80 leading-relaxed px-1 max-w-sm">
-            Vítejte v Kompas na školu — modul Matematika. Trénuj, počítej a hraj se s matikou.
+          <p className="mt-3 text-sm sm:text-base text-white/80 leading-relaxed max-w-sm">
+            Vítejte v Kompas-Matika. Trénuj, počítej a hraj se s matikou.
           </p>
-        </div>
+        </header>
 
-        <div className="flex flex-col pb-4 flex-shrink-0 w-full">
+        <div className="flex-1 min-h-4 flex flex-col justify-center py-6">
           <WelcomeFeatureBanners />
         </div>
 
-        <div className="flex flex-col items-center gap-3 pb-2 flex-shrink-0">
+        <div className="flex-shrink-0 flex flex-col gap-3">
           <button
             type="button"
             onClick={() => setAuthMode("register")}
-            className="paper-btn w-full py-3.5 rounded-2xl font-bold text-base text-center tracking-wide text-white"
+            className="w-full py-3.5 rounded-2xl font-bold text-base text-center tracking-wide text-white"
             style={{ backgroundColor: "#3F6B4C" }}
           >
             ZAČÍT DOBRODRUŽSTVÍ
@@ -74,12 +72,7 @@ export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
           <button
             type="button"
             onClick={() => setAuthMode("login")}
-            className="paper-btn-ghost w-full py-3.5 rounded-2xl font-bold text-base text-center"
-            style={{
-              backgroundColor: "rgba(255, 253, 247, 0.12)",
-              borderColor: "rgba(255, 253, 247, 0.4)",
-              color: "#FFFFFF",
-            }}
+            className="w-full py-3.5 rounded-2xl font-bold text-base text-center text-white bg-white/10"
           >
             Již máš účet? Přihlásit se
           </button>

@@ -1,0 +1,16 @@
+{
+  "name": "Kompas-Matika",
+  "short_name": "Kompas-Matika",
+  "display": "standalone",
+  "start_url": "/",
+  "background_color": "#0a0818",
+  "theme_color": "#0a0818",
+  "icons": [
+    {
+      "src": "/compass-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,21 +1,16 @@
 import { PremiumCelebrateHost } from "@/components/PremiumCelebrateHost";
-import { C } from "@/data/theme";
+import { COSMIC_BG_STYLE } from "@/lib/cosmicBg";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="fixed inset-0 z-0 w-full max-w-[100vw] flex justify-center sm:items-center p-0 sm:p-6 overflow-hidden"
-      style={{ backgroundColor: C.bgDeep, fontFamily: "var(--font-sans), Nunito, ui-rounded, system-ui, sans-serif" }}
+      className="fixed inset-0 z-0 w-full h-full overflow-hidden flex flex-col"
+      style={{
+        ...COSMIC_BG_STYLE,
+        fontFamily: "var(--font-sans), Nunito, ui-rounded, system-ui, sans-serif",
+      }}
     >
-      <div
-        className="relative w-full max-w-md h-full max-h-full min-h-0 sm:h-auto sm:min-h-[51rem] sm:max-h-[calc(100dvh-3rem)] overflow-hidden flex flex-col rounded-none sm:rounded-[28px]"
-        style={{
-          backgroundColor: C.bg,
-          border: "1px solid #EAE3D2",
-        }}
-      >
-        {children}
-      </div>
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden flex flex-col">{children}</div>
       <PremiumCelebrateHost />
     </div>
   );

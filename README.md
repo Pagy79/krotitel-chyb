@@ -11,13 +11,13 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Otevři [http://localhost:3000](http://localhost:3000). Produkce je na [https://krotitel-chyb.vercel.app](https://krotitel-chyb.vercel.app).
+Otevři [http://localhost:3000](http://localhost:3000). Produkce je na [https://matika.kompasnaskolu.cz](https://matika.kompasnaskolu.cz).
 
 Do `.env.local` doplň `NEXT_PUBLIC_SUPABASE_URL` a `NEXT_PUBLIC_SUPABASE_ANON_KEY` z nového Supabase projektu. SQL schéma je v `krotitel-chyb/scripts/supabase-setup.sql`.
 
 V Supabase **Authentication → URL Configuration**:
-- Site URL: `https://krotitel-chyb.vercel.app`
-- Redirect URLs: `https://krotitel-chyb.vercel.app/auth/callback/`, `http://localhost:3000/auth/callback/`
+- Site URL: `https://matika.kompasnaskolu.cz`
+- Redirect URLs: `https://matika.kompasnaskolu.cz/auth/callback/`, `https://krotitel-chyb.vercel.app/auth/callback/`, `http://localhost:3000/auth/callback/`
 
 Google: v Supabase zapni **Authentication → Providers → Google** (Client ID + Secret z Google Cloud).  
 V Google Cloud u OAuth klienta přidej Authorized redirect URI přesně:

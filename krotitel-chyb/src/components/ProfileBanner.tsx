@@ -291,8 +291,8 @@ export function ProfileBanner({
       <div className="flex items-center gap-2.5 min-w-0">
         <CompassKey className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
-          <p className="text-sm font-semibold text-white">Trénink</p>
-          <p className="text-xs text-indigo-200/70 -mt-0.5">matematiky</p>
+          <p className="text-sm font-semibold text-white">Kompas-Matika</p>
+          <p className="text-xs text-indigo-200/70 -mt-0.5">trénink matematiky</p>
         </div>
       </div>
       <div className="flex items-center gap-2">
