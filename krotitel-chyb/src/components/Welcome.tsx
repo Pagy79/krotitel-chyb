@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CompassKey } from "@/components/CompassKey";
 import { WelcomeFeatureBanners } from "@/components/WelcomeFeatureBanners";
-import { WelcomeFormulas } from "@/components/WelcomeFormulas";
 import { AuthModal, type AuthModalMode } from "@/components/AuthModal";
 
 export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
@@ -20,59 +18,54 @@ export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
     <div
       className="relative flex-1 min-h-0 flex flex-col overflow-hidden"
       style={{
-        backgroundColor: "#0a0818",
+        backgroundColor: "#07110d",
         backgroundImage:
-          "linear-gradient(180deg, rgba(8,6,22,0.28) 0%, rgba(8,6,22,0.48) 100%), url(/nebula-bg.jpg)",
+          "linear-gradient(180deg, rgba(7,17,13,0) 0%, rgba(7,17,13,0.12) 36%, rgba(7,17,13,0.62) 100%), url(/welcome-hero.png)",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "center top",
         backgroundRepeat: "no-repeat",
       }}
     >
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 390 720" preserveAspectRatio="none" aria-hidden="true">
-        <g fill="none" stroke="#E8F4F2" strokeWidth="1.6" opacity="0.22">
-          <path d="M28 70 h70 M28 70 v70" />
-          <path d="M28 130 C48 120 68 40 98 55" />
-          <path d="M300 48 l18 28 l22 -12 l14 30 l24 -18" />
-          <circle cx="300" cy="48" r="2.5" fill="#E8F4F2" stroke="none" />
-          <circle cx="318" cy="76" r="2.5" fill="#E8F4F2" stroke="none" />
-          <circle cx="340" cy="64" r="2.5" fill="#E8F4F2" stroke="none" />
-          <circle cx="354" cy="94" r="2.5" fill="#E8F4F2" stroke="none" />
-          <circle cx="378" cy="76" r="2.5" fill="#E8F4F2" stroke="none" />
-        </g>
-      </svg>
+      <div className="relative z-10 h-full min-h-0 w-full max-w-lg mx-auto flex flex-col px-5 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
+        <div className="shrink-0 w-full" style={{ height: "clamp(17rem, 44svh, 26rem)" }} aria-hidden="true" />
 
-      <WelcomeFormulas />
-
-      <div className="relative z-10 h-full min-h-0 w-full max-w-lg mx-auto flex flex-col px-5 pt-10 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8 sm:pt-14">
         <header className="flex-shrink-0 flex flex-col items-center text-center">
-          <CompassKey className="w-14 h-14 sm:w-16 sm:h-16 mb-3" />
-          <h1 className="text-2xl sm:text-[1.75rem] font-extrabold text-white leading-tight">
-            Kompas-Matika
-            <br />
-            tvoje cesta začíná
+          <h1
+            className="text-[1.45rem] sm:text-[1.75rem] font-extrabold text-white leading-tight"
+            style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}
+          >
+            Kompas na školu
+            <span className="block mt-0.5">– Matika</span>
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-white/80 leading-relaxed max-w-sm">
-            Vítejte v Kompas-Matika. Trénuj, počítej a hraj se s matikou.
+          <p
+            className="mt-1.5 text-base sm:text-lg font-semibold text-[#E8D5A3] leading-snug"
+            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}
+          >
+            tvoje cesta začíná
+          </p>
+          <p className="mt-3 text-sm text-white/85 leading-relaxed max-w-sm">
+            Naviguj se matematikou ke přijímačkám. Trénuj příklady, drž kurz a přistávej jistěji.
           </p>
         </header>
 
-        <div className="flex-1 min-h-4 flex flex-col justify-center py-6">
+        <div className="mt-5 flex-1 min-h-0 overflow-y-auto app-hide-scrollbar">
           <WelcomeFeatureBanners />
         </div>
 
-        <div className="flex-shrink-0 flex flex-col gap-3">
+        <div className="mt-4 flex-shrink-0 flex flex-col gap-3">
           <button
             type="button"
             onClick={() => setAuthMode("register")}
             className="w-full py-3.5 rounded-2xl font-bold text-base text-center tracking-wide text-white"
-            style={{ backgroundColor: "#3F6B4C" }}
+            style={{ backgroundColor: "#3F6B4C", boxShadow: "0 8px 22px rgba(20, 40, 28, 0.45)" }}
           >
             ZAČÍT DOBRODRUŽSTVÍ
           </button>
           <button
             type="button"
             onClick={() => setAuthMode("login")}
-            className="w-full py-3.5 rounded-2xl font-bold text-base text-center text-white bg-white/10"
+            className="w-full py-3.5 rounded-2xl font-bold text-base text-center text-[#F3E6C4]"
+            style={{ backgroundColor: "rgba(8, 16, 14, 0.42)" }}
           >
             Již máš účet? Přihlásit se
           </button>

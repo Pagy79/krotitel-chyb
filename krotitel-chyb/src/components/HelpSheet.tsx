@@ -50,7 +50,7 @@ export function HelpSheet({ onClose }: { onClose: () => void }) {
           <div className="backdrop-blur-xl rounded-2xl border p-4" style={TILE}>
             <p className="text-xs font-semibold text-indigo-300/70 uppercase tracking-wide mb-3">Appka na plochu telefonu</p>
             <p className="text-xs text-indigo-200/90 leading-relaxed mb-3">
-              Kompas-Matika si můžeš přidat na plochu jako běžnou aplikaci (bez App Store / Google Play).
+              Kompas na školu - Matika si můžeš přidat na plochu jako běžnou aplikaci (bez App Store / Google Play).
             </p>
             <div className="flex flex-col gap-3.5">
               <div>

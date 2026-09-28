@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 
 const TILE_STYLE = {
-  backgroundColor: "rgba(255, 255, 255, 0.06)",
-  backdropFilter: "blur(20px)",
-  WebkitBackdropFilter: "blur(20px)",
+  backgroundColor: "rgba(8, 16, 14, 0.58)",
+  border: "1px solid rgba(212, 175, 90, 0.32)",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  boxShadow: "0 8px 22px rgba(0, 0, 0, 0.28)",
 } as const;
 
 function GearBadge({
@@ -82,7 +84,7 @@ function IconCheck() {
 
 function IconChevron() {
   return (
-    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" fill="none" stroke="#A5B4FC" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" fill="none" stroke="#E8D5A3" strokeWidth="2" aria-hidden="true">
       <path d="M9 6l6 6-6 6" />
     </svg>
   );
@@ -90,29 +92,29 @@ function IconChevron() {
 
 const BANNERS = [
   {
-    title: "1000+ Otázek na testování",
-    subtitle: "Trénuj mozek kdekoli a kdykoli.",
+    title: "Tisíce příkladů na cestu",
+    subtitle: "Trénuj kdekoli a kdykoli — mapa úloh je připravená.",
     gradient: "linear-gradient(to bottom right, #fbbf24, #f97316)",
     glow: "rgba(251, 191, 36, 0.45)",
     icon: <IconZap />,
   },
   {
-    title: "Testy nanečisto",
-    subtitle: "30 úloh · 40 minut · jako ostrá zkouška.",
+    title: "Test nanečisto",
+    subtitle: "30 úloh · 40 minut · stejný formát jako ostrá zkouška.",
     gradient: "linear-gradient(to bottom right, #f43f5e, #ef4444)",
     glow: "rgba(244, 63, 94, 0.45)",
     icon: <IconFire />,
   },
   {
-    title: "Praktické taháky a triky",
-    subtitle: "Nauč se super triky a ušetři čas.",
+    title: "Taháky a triky",
+    subtitle: "Vzorce a zkratky, které ti ušetří minuty u písemky.",
     gradient: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)",
     glow: "rgba(129, 140, 248, 0.45)",
     icon: <IconBooks />,
   },
   {
-    title: "Sleduj svůj pokrok",
-    subtitle: "Denní série, skóre a odznaky za výsledky.",
+    title: "Sleduj svůj kurz",
+    subtitle: "Denní série, skóre a odznaky za to, kam doletíš.",
     gradient: "linear-gradient(to bottom right, #10b981, #14b8a6)",
     glow: "rgba(52, 211, 153, 0.45)",
     icon: <IconCheck />,
@@ -132,8 +134,8 @@ export function WelcomeFeatureBanners() {
             {item.icon}
           </GearBadge>
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-semibold text-slate-100 leading-snug">{item.title}</p>
-            <p className="text-xs text-indigo-200/75 leading-snug mt-0.5">{item.subtitle}</p>
+            <p className="text-sm font-semibold text-[#F7F1E4] leading-snug">{item.title}</p>
+            <p className="text-xs text-[#D9E5D8]/80 leading-snug mt-0.5">{item.subtitle}</p>
           </div>
           <IconChevron />
         </div>

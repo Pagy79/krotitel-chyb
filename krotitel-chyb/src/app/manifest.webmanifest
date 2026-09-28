@@ -1,6 +1,6 @@
 {
-  "name": "Kompas-Matika",
-  "short_name": "Kompas-Matika",
+  "name": "Kompas na školu - Matika",
+  "short_name": "Kompas Matika",
   "display": "standalone",
   "start_url": "/",
   "background_color": "#0a0818",

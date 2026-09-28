@@ -178,7 +178,7 @@ export function AuthModal({
 
         <div className="flex items-center gap-2.5 mb-3 pr-8">
           <CompassKey className="w-9 h-9 flex-shrink-0" />
-          <p className="text-sm font-semibold text-white">Kompas-Matika</p>
+          <p className="text-sm font-semibold text-white">Kompas na školu - Matika</p>
         </div>
         <h2 className="text-lg font-bold text-white mb-1">{title}</h2>
         <p className="text-xs text-indigo-200/70 mb-5">{subtitle}</p>
