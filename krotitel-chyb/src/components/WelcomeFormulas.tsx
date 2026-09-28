@@ -35,12 +35,12 @@ type Floater = {
 
 function layoutForSlot(slot: Slot) {
   if (slot === 0) {
-    return { x: 5 + Math.random() * 8, y: 6 + Math.random() * 10, rotate: -8 + Math.random() * 14, size: 16 + Math.random() * 3 };
+    return { x: 3 + Math.random() * 10, y: 22 + Math.random() * 8, rotate: -10 + Math.random() * 16, size: 15 + Math.random() * 3 };
   }
   if (slot === 1) {
-    return { x: 16 + Math.random() * 14, y: 40 + Math.random() * 10, rotate: -8 + Math.random() * 14, size: 16 + Math.random() * 3 };
+    return { x: 62 + Math.random() * 14, y: 20 + Math.random() * 10, rotate: -10 + Math.random() * 16, size: 15 + Math.random() * 3 };
   }
-  return { x: 7 + Math.random() * 12, y: 70 + Math.random() * 10, rotate: -8 + Math.random() * 14, size: 16 + Math.random() * 3 };
+  return { x: 6 + Math.random() * 16, y: 78 + Math.random() * 8, rotate: -8 + Math.random() * 14, size: 14 + Math.random() * 3 };
 }
 
 function randomDuration() {
@@ -132,9 +132,9 @@ export function WelcomeFormulas() {
             top: `${item.y}%`,
             transform: `rotate(${item.rotate}deg)`,
             fontSize: `${item.size}px`,
-            opacity: 0.9,
+            opacity: 0.72,
             color: "#F7F3E8",
-            textShadow: "0 1px 8px rgba(10,51,44,0.45)",
+            textShadow: "0 1px 10px rgba(0,0,0,0.55)",
           }}
         >
           {item.text}

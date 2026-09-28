@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { WelcomeFeatureBanners } from "@/components/WelcomeFeatureBanners";
+import { WelcomeFormulas } from "@/components/WelcomeFormulas";
 import { AuthModal, type AuthModalMode } from "@/components/AuthModal";
 
 export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
@@ -26,6 +27,8 @@ export function Welcome({ initialAuth }: { initialAuth?: AuthModalMode }) {
         backgroundRepeat: "no-repeat",
       }}
     >
+      <WelcomeFormulas />
+
       <div className="relative z-10 h-full min-h-0 w-full max-w-[26rem] mx-auto flex flex-col px-5 overflow-y-auto app-hide-scrollbar">
         <div className="shrink-0" style={{ height: "clamp(5.75rem, 26svh, 10.5rem)" }} aria-hidden="true" />
 
