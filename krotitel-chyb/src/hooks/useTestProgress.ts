@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DEFAULT_WILDNESS } from "@/data/topics";
 import { loadProgressMerged, loadTestProgress, type TestProgress } from "@/lib/attempts";
+import { SESSION_EVENT } from "@/lib/session";
 import type { TopicId } from "@/lib/types";
 
 const EMPTY: TestProgress = {
@@ -31,9 +32,11 @@ export function useTestProgress() {
     refresh();
     window.addEventListener("krotitel-attempts", refresh);
     window.addEventListener("storage", refresh);
+    window.addEventListener(SESSION_EVENT, refresh);
     return () => {
       window.removeEventListener("krotitel-attempts", refresh);
       window.removeEventListener("storage", refresh);
+      window.removeEventListener(SESSION_EVENT, refresh);
     };
   }, []);
 

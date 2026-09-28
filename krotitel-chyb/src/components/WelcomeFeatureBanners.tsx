@@ -1,11 +1,9 @@
 import type { ReactNode } from "react";
 
 const TILE_STYLE = {
-  backgroundColor: "rgba(8, 16, 14, 0.58)",
-  border: "1px solid rgba(212, 175, 90, 0.32)",
-  backdropFilter: "blur(16px)",
-  WebkitBackdropFilter: "blur(16px)",
-  boxShadow: "0 8px 22px rgba(0, 0, 0, 0.28)",
+  backgroundColor: "rgba(255, 255, 255, 0.12)",
+  backdropFilter: "blur(18px)",
+  WebkitBackdropFilter: "blur(18px)",
 } as const;
 
 function GearBadge({
@@ -84,7 +82,7 @@ function IconCheck() {
 
 function IconChevron() {
   return (
-    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" fill="none" stroke="#E8D5A3" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" aria-hidden="true">
       <path d="M9 6l6 6-6 6" />
     </svg>
   );
@@ -92,29 +90,29 @@ function IconChevron() {
 
 const BANNERS = [
   {
-    title: "Tisíce příkladů na cestu",
-    subtitle: "Trénuj kdekoli a kdykoli — mapa úloh je připravená.",
+    title: "1000+ Otázek na testování",
+    subtitle: "Trénuj mozek kdekoli a kdykoli.",
     gradient: "linear-gradient(to bottom right, #fbbf24, #f97316)",
     glow: "rgba(251, 191, 36, 0.45)",
     icon: <IconZap />,
   },
   {
-    title: "Test nanečisto",
-    subtitle: "30 úloh · 40 minut · stejný formát jako ostrá zkouška.",
+    title: "Testy nanečisto",
+    subtitle: "Odhal chytáky přijímacích zkoušek.",
     gradient: "linear-gradient(to bottom right, #f43f5e, #ef4444)",
     glow: "rgba(244, 63, 94, 0.45)",
     icon: <IconFire />,
   },
   {
-    title: "Taháky a triky",
-    subtitle: "Vzorce a zkratky, které ti ušetří minuty u písemky.",
+    title: "Praktické taháky a triky",
+    subtitle: "Nauč se super triky a ušetři čas.",
     gradient: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)",
     glow: "rgba(129, 140, 248, 0.45)",
     icon: <IconBooks />,
   },
   {
-    title: "Sleduj svůj kurz",
-    subtitle: "Denní série, skóre a odznaky za to, kam doletíš.",
+    title: "Sleduj svůj pokrok",
+    subtitle: "Denní série, skóre a odznaky za výsledky.",
     gradient: "linear-gradient(to bottom right, #10b981, #14b8a6)",
     glow: "rgba(52, 211, 153, 0.45)",
     icon: <IconCheck />,
@@ -123,19 +121,19 @@ const BANNERS = [
 
 export function WelcomeFeatureBanners() {
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-2.5 w-full">
       {BANNERS.map((item) => (
         <div
           key={item.title}
-          className="flex items-center gap-3.5 rounded-2xl px-4 py-3.5"
+          className="flex items-center gap-3 rounded-2xl px-3.5 py-3"
           style={TILE_STYLE}
         >
           <GearBadge gradient={item.gradient} glow={item.glow}>
             {item.icon}
           </GearBadge>
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-semibold text-[#F7F1E4] leading-snug">{item.title}</p>
-            <p className="text-xs text-[#D9E5D8]/80 leading-snug mt-0.5">{item.subtitle}</p>
+            <p className="text-sm font-semibold text-white leading-snug">{item.title}</p>
+            <p className="text-xs text-white/70 leading-snug mt-0.5">{item.subtitle}</p>
           </div>
           <IconChevron />
         </div>

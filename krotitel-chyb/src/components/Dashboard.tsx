@@ -256,7 +256,7 @@ export function Dashboard() {
 
       <div className="grid grid-cols-2 gap-3 mb-6 flex-shrink-0">
         {TOPICS.map((t) => {
-          const lastPct = categoryStats[t.id]?.percentage ?? lastByTopic[t.id];
+          const lastPct = lastByTopic[t.id];
           return (
             <div key={t.id} className="glass-panel rounded-2xl p-4 flex flex-col">
               <TopicIconBadge topicId={t.id} className="mb-3" />

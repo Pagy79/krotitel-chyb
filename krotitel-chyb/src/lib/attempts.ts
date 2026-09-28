@@ -61,36 +61,37 @@ function emptyLastByTopic(): Record<TopicId, number | null> {
   >;
 }
 
-function readAttempts(): TestAttempt[] {
+function scopedKey(base: string) {
+  const userId = loadSession().userId;
+  return userId ? `${base}:${userId}` : `${base}:anon`;
+}
+
+function readJsonArray<T>(base: string): T[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(scopedKey(base));
     if (!raw) return [];
-    const parsed = JSON.parse(raw) as TestAttempt[];
+    const parsed = JSON.parse(raw) as T[];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
+}
+
+function readAttempts(): TestAttempt[] {
+  return readJsonArray<TestAttempt>(KEY);
 }
 
 function writeAttempts(attempts: TestAttempt[]) {
-  localStorage.setItem(KEY, JSON.stringify(attempts.slice(0, 200)));
+  localStorage.setItem(scopedKey(KEY), JSON.stringify(attempts.slice(0, 200)));
 }
 
 function readAnswers(): AttemptAnswer[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(ANSWERS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as AttemptAnswer[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  return readJsonArray<AttemptAnswer>(ANSWERS_KEY);
 }
 
 function writeAnswers(answers: AttemptAnswer[]) {
-  localStorage.setItem(ANSWERS_KEY, JSON.stringify(answers.slice(0, 5000)));
+  localStorage.setItem(scopedKey(ANSWERS_KEY), JSON.stringify(answers.slice(0, 5000)));
 }
 
 function computeCategoryStats(answers: AttemptAnswer[]) {
@@ -144,7 +145,9 @@ function buildProgress(attempts: TestAttempt[], answers: AttemptAnswer[]): TestP
   const lastByTopic = emptyLastByTopic();
 
   for (const topicId of Object.keys(lastByTopic) as TopicId[]) {
-    const last = attempts.find((a) => a.mode === "practice" && a.category === topicId);
+    const last = attempts.find(
+      (a) => a.mode === "practice" && a.category === topicId && Number.isFinite(a.percentage),
+    );
     if (last) lastByTopic[topicId] = Math.round(last.percentage);
   }
 
@@ -156,7 +159,7 @@ function buildProgress(attempts: TestAttempt[], answers: AttemptAnswer[]): TestP
 
   if (fullBestPct == null && typeof window !== "undefined") {
     try {
-      const legacy = localStorage.getItem(LEGACY_BEST_KEY);
+      const legacy = localStorage.getItem(scopedKey(LEGACY_BEST_KEY));
       if (legacy) fullBestPct = Number(legacy);
     } catch {
       /* ignore */
